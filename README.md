@@ -54,7 +54,7 @@ The website includes a dedicated, secure Admin Panel with full CRUD capabilities
 
 ## 🛠️ How to Run Locally
 
-1. Open your terminal in `d:/Development/yovexa-solutions`
+1. Open your terminal in `d:/Development/yovexa-solutions` (or `yovexa-solutions-frontend`)
 2. Install dependencies (if not already installed):
    ```bash
    npm install
