@@ -11,17 +11,17 @@ export default function AdminCreateHeroPage() {
   const [saving, setSaving] = useState(false);
 
   const [formData, setFormData] = useState({
-    badge: 'Technology Partner for Modern Businesses',
+    badge: '',
     heading: '',
     highlightedText: '',
     description: '',
-    primaryCtaText: 'Start a Project',
-    primaryCtaLink: '#contact',
-    secondaryCtaText: 'Explore Our Services',
-    secondaryCtaLink: '#services',
-    heroImage: 'https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&w=1200&q=80',
-    heroImageAlt: 'Modern Software Architecture',
-    status: 'PUBLISHED',
+    primaryCtaText: '',
+    primaryCtaLink: '',
+    secondaryCtaText: '',
+    secondaryCtaLink: '',
+    heroImage: '',
+    heroImageAlt: '',
+    status: 'DRAFT',
     isActive: false,
     isVisible: true,
   });

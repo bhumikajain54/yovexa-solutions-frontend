@@ -1,214 +1,133 @@
-import { api } from './api';
-import { PROJECTS_DATA, PROJECT_CATEGORIES } from '../data/projects';
+import { api, extractData, extractListData } from './api';
+import { PROJECT_CATEGORIES } from '../data/projects';
 import { generateSlug } from './blogService';
-
-const PROJECTS_STORAGE_KEY = 'yovexa_cms_projects';
-const CATEGORIES_STORAGE_KEY = 'yovexa_cms_project_categories';
-
-function getInitialProjects() {
-  return PROJECTS_DATA.map((p, idx) => ({
-    ...p,
-    projectName: p.title,
-    slug: p.id,
-    shortDescription: p.summary,
-    fullDescription: p.solution || p.summary,
-    featuredImage: p.featuredImage || 'https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&w=1200&q=80',
-    galleryImages: [],
-    status: 'PUBLISHED',
-    featured: idx < 2,
-    displayOrder: idx + 1,
-    projectUrl: p.projectUrl || '',
-    githubUrl: p.githubUrl || '',
-    caseStudyUrl: p.caseStudyUrl || '',
-    clientLabel: p.statusBadge || 'Concept / Case Study',
-    seoTitle: `${p.title} - Case Study | Yovexa Solutions`,
-    seoDescription: p.summary,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  }));
-}
-
-function getStoredProjects() {
-  try {
-    const raw = localStorage.getItem(PROJECTS_STORAGE_KEY);
-    if (raw) return JSON.parse(raw);
-    const initial = getInitialProjects();
-    localStorage.setItem(PROJECTS_STORAGE_KEY, JSON.stringify(initial));
-    return initial;
-  } catch {
-    return getInitialProjects();
-  }
-}
-
-function persistProjects(projects) {
-  try {
-    localStorage.setItem(PROJECTS_STORAGE_KEY, JSON.stringify(projects));
-  } catch (err) {
-    console.error('Failed to persist projects:', err);
-  }
-}
-
-function getStoredCategories() {
-  try {
-    const raw = localStorage.getItem(CATEGORIES_STORAGE_KEY);
-    if (raw) return JSON.parse(raw);
-    localStorage.setItem(CATEGORIES_STORAGE_KEY, JSON.stringify(PROJECT_CATEGORIES));
-    return PROJECT_CATEGORIES;
-  } catch {
-    return PROJECT_CATEGORIES;
-  }
-}
 
 export const projectService = {
   async getCategories() {
-    return getStoredCategories();
+    return PROJECT_CATEGORIES;
   },
 
-  async getProjects({ category = 'all', publishedOnly = false } = {}) {
+  async getProjects({ category = 'all', publishedOnly = false, search = '' } = {}) {
     try {
-      const data = await api.get(publishedOnly ? `/projects?category=${category}` : `/admin/projects`);
-      return data;
-    } catch {
-      const list = getStoredProjects();
-      let filtered = list;
-
+      let endpoint;
       if (publishedOnly) {
-        filtered = filtered.filter(p => p.status === 'PUBLISHED');
+        const params = new URLSearchParams();
+        if (category && category !== 'all') params.append('category', category);
+        if (search) params.append('search', search);
+        const query = params.toString();
+        endpoint = query ? `/projects?${query}` : '/projects';
+      } else {
+        const params = new URLSearchParams();
+        if (category && category !== 'all') params.append('category', category);
+        if (search) params.append('search', search);
+        params.append('size', '100');
+        const query = params.toString();
+        endpoint = query ? `/admin/projects?${query}` : '/admin/projects';
       }
 
-      if (category && category !== 'all') {
-        filtered = filtered.filter(p => 
-          p.category === category || 
-          (Array.isArray(p.secondaryCategories) && p.secondaryCategories.includes(category))
-        );
-      }
-
-      return filtered.sort((a, b) => (a.displayOrder || 0) - (b.displayOrder || 0));
+      const res = await api.get(endpoint);
+      const list = extractListData(res);
+      return list.sort((a, b) => (a.displayOrder || 0) - (b.displayOrder || 0));
+    } catch (err) {
+      console.error('Failed to fetch projects:', err);
+      return [];
     }
   },
 
   async getProjectBySlug(slug) {
     try {
-      const data = await api.get(`/projects/${slug}`);
-      return data;
-    } catch {
-      const list = getStoredProjects();
-      const proj = list.find(p => p.slug === slug || p.id === slug);
-      if (!proj) throw new Error('Project not found');
-      return proj;
+      const res = await api.get(`/projects/${slug}`);
+      return extractData(res);
+    } catch (err) {
+      console.error('Failed to fetch project by slug:', err);
+      throw err;
     }
   },
 
   async getProjectById(id) {
     try {
-      const data = await api.get(`/admin/projects/${id}`);
-      return data;
-    } catch {
-      const list = getStoredProjects();
-      return list.find(p => p.id === id || p.slug === id) || null;
+      const res = await api.get(`/admin/projects/${id}`);
+      return extractData(res);
+    } catch (err) {
+      console.error('Failed to fetch project by id:', err);
+      throw err;
     }
   },
 
   async createProject(projectData) {
-    const list = getStoredProjects();
-    const title = projectData.projectName || projectData.title || 'Untitled Project';
+    const title = projectData.name || projectData.projectName || projectData.title || 'Untitled Project';
     const slug = projectData.slug || generateSlug(title);
 
-    const newProject = {
-      ...projectData,
-      id: slug,
+    const payload = {
+      name: title,
       title,
       projectName: title,
       slug,
       shortDescription: projectData.shortDescription || projectData.summary || '',
       summary: projectData.shortDescription || projectData.summary || '',
-      fullDescription: projectData.fullDescription || projectData.solution || '',
-      solution: projectData.fullDescription || projectData.solution || '',
-      status: projectData.status || 'PUBLISHED',
-      category: projectData.category || 'web',
+      description: projectData.description || projectData.solution || projectData.fullDescription || '',
+      solution: projectData.description || projectData.solution || projectData.fullDescription || '',
+      category: projectData.category || 'WEB_APPLICATIONS',
       projectType: projectData.projectType || 'Web Application',
+      featuredImage: projectData.featuredImage || '',
+      galleryImages: Array.isArray(projectData.galleryImages) ? projectData.galleryImages : [],
       technologies: Array.isArray(projectData.technologies)
         ? projectData.technologies
         : typeof projectData.technologies === 'string'
           ? projectData.technologies.split(',').map(t => t.trim()).filter(Boolean)
           : [],
-      features: Array.isArray(projectData.features)
-        ? projectData.features
-        : typeof projectData.features === 'string'
-          ? projectData.features.split('\n').map(f => f.trim()).filter(Boolean)
-          : [],
-      displayOrder: projectData.displayOrder || list.length + 1,
-      featuredImage: projectData.featuredImage || 'https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&w=1200&q=80',
-      clientLabel: projectData.clientLabel || 'Case Study / Prototype',
-      statusBadge: projectData.clientLabel || 'Case Study / Prototype',
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
+      projectUrl: projectData.projectUrl || '',
+      githubUrl: projectData.githubUrl || '',
+      caseStudyUrl: projectData.caseStudyUrl || '',
+      status: projectData.status || 'PUBLISHED',
+      featured: Boolean(projectData.featured),
+      displayOrder: Number(projectData.displayOrder) || 0,
+      seoTitle: projectData.seoTitle || '',
+      seoDescription: projectData.seoDescription || '',
     };
 
-    try {
-      const created = await api.post('/admin/projects', newProject);
-      list.push(created);
-      persistProjects(list);
-      return created;
-    } catch {
-      list.push(newProject);
-      persistProjects(list);
-      return newProject;
-    }
+    const res = await api.post('/admin/projects', payload);
+    return extractData(res);
   },
 
   async updateProject(id, projectData) {
-    const list = getStoredProjects();
-    const index = list.findIndex(p => p.id === id || p.slug === id);
-    if (index === -1) throw new Error('Project not found');
+    const title = projectData.name || projectData.projectName || projectData.title || '';
+    const slug = projectData.slug || (title ? generateSlug(title) : '');
 
-    const title = projectData.projectName || projectData.title || list[index].title;
-    const slug = projectData.slug || list[index].slug;
-
-    const updated = {
-      ...list[index],
-      ...projectData,
+    const payload = {
+      name: title,
       title,
       projectName: title,
       slug,
-      shortDescription: projectData.shortDescription || projectData.summary || list[index].shortDescription,
-      summary: projectData.shortDescription || projectData.summary || list[index].summary,
-      fullDescription: projectData.fullDescription || projectData.solution || list[index].fullDescription,
-      solution: projectData.fullDescription || projectData.solution || list[index].solution,
+      shortDescription: projectData.shortDescription || projectData.summary || '',
+      summary: projectData.shortDescription || projectData.summary || '',
+      description: projectData.description || projectData.solution || projectData.fullDescription || '',
+      solution: projectData.description || projectData.solution || projectData.fullDescription || '',
+      category: projectData.category,
+      projectType: projectData.projectType,
+      featuredImage: projectData.featuredImage,
+      galleryImages: Array.isArray(projectData.galleryImages) ? projectData.galleryImages : [],
       technologies: Array.isArray(projectData.technologies)
         ? projectData.technologies
         : typeof projectData.technologies === 'string'
           ? projectData.technologies.split(',').map(t => t.trim()).filter(Boolean)
-          : list[index].technologies,
-      features: Array.isArray(projectData.features)
-        ? projectData.features
-        : typeof projectData.features === 'string'
-          ? projectData.features.split('\n').map(f => f.trim()).filter(Boolean)
-          : list[index].features,
-      updatedAt: new Date().toISOString(),
+          : projectData.technologies,
+      projectUrl: projectData.projectUrl,
+      githubUrl: projectData.githubUrl,
+      caseStudyUrl: projectData.caseStudyUrl,
+      status: projectData.status,
+      featured: Boolean(projectData.featured),
+      displayOrder: Number(projectData.displayOrder) || 0,
+      seoTitle: projectData.seoTitle,
+      seoDescription: projectData.seoDescription,
     };
 
-    try {
-      const res = await api.put(`/admin/projects/${id}`, updated);
-      list[index] = res;
-      persistProjects(list);
-      return res;
-    } catch {
-      list[index] = updated;
-      persistProjects(list);
-      return updated;
-    }
+    const res = await api.put(`/admin/projects/${id}`, payload);
+    return extractData(res);
   },
 
   async deleteProject(id) {
-    try {
-      await api.delete(`/admin/projects/${id}`);
-    } catch {
-      // Fallback
-    }
-    const list = getStoredProjects();
-    const updated = list.filter(p => p.id !== id && p.slug !== id);
-    persistProjects(updated);
+    await api.delete(`/admin/projects/${id}`);
     return true;
   }
 };

@@ -235,14 +235,20 @@ export default function AdminProjectsPage() {
                     {/* Project & Thumbnail */}
                     <td className="py-4 px-4 sm:px-6">
                       <div className="flex items-center gap-3.5 max-w-md">
-                        <img
-                          src={p.featuredImage}
-                          alt={p.title || p.projectName}
-                          className="w-12 h-12 rounded-lg object-cover shrink-0 border border-[#E2E8F0] bg-slate-100"
-                          onError={(e) => {
-                            e.currentTarget.src = 'https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&w=200&q=80';
-                          }}
-                        />
+                        {p.featuredImage ? (
+                          <img
+                            src={p.featuredImage}
+                            alt={p.title || p.projectName}
+                            className="w-12 h-12 rounded-lg object-cover shrink-0 border border-[#E2E8F0] bg-slate-100"
+                            onError={(e) => {
+                              e.currentTarget.style.display = 'none';
+                            }}
+                          />
+                        ) : (
+                          <div className="w-12 h-12 rounded-lg bg-slate-100 text-slate-400 flex items-center justify-center shrink-0 border border-[#E2E8F0]">
+                            <Layers className="w-5 h-5 text-[#64748B]" />
+                          </div>
+                        )}
                         <div className="min-w-0">
                           <div className="font-bold text-[#0B1B3A] text-sm truncate">
                             {p.title || p.projectName}

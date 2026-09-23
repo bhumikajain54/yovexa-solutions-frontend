@@ -55,6 +55,10 @@ export default function Process() {
                 </div>
               ))}
             </div>
+          ) : steps.length === 0 ? (
+            <div className="text-center py-12 text-[#64748B] relative z-10">
+              <p className="text-base sm:text-lg">No process steps available at the moment.</p>
+            </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 relative z-10">
               {steps.map((step, idx) => (

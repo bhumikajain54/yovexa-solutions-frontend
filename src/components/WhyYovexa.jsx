@@ -3,6 +3,9 @@ import { Target, Cpu, Sparkles, ShieldCheck, ArrowRight } from 'lucide-react';
 import { VALUES_DATA } from '../data/values';
 
 export default function WhyYovexa() {
+  if (!VALUES_DATA || VALUES_DATA.length === 0) {
+    return null;
+  }
   const getIcon = (id) => {
     switch (id) {
       case 'business-focused': return <Target className="w-6 h-6 text-[#38BDF8]" />;

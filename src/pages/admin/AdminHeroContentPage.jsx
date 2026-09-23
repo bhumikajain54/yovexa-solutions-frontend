@@ -28,7 +28,9 @@ export default function AdminHeroContentPage() {
       try {
         setLoading(true);
         const data = await contentService.getHeroContent();
-        setFormData(data);
+        if (data) {
+          setFormData(prev => ({ ...prev, ...data }));
+        }
       } catch (err) {
         console.error('Failed to load hero content:', err);
         showToast('Failed to load hero content', 'error');

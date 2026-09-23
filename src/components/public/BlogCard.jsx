@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, Calendar, Clock, User } from 'lucide-react';
+import { ArrowRight, Calendar, Clock, User, BookOpen } from 'lucide-react';
 
 export default function BlogCard({ blog }) {
   const formattedDate = blog.publishedAt || blog.createdAt
@@ -15,15 +15,21 @@ export default function BlogCard({ blog }) {
     <article className="group relative flex flex-col justify-between rounded-2xl bg-white border border-[#E2E8F0] hover:border-[#CBD5E1] shadow-card hover:shadow-card-hover transition-all duration-300 overflow-hidden transform hover:-translate-y-1">
       {/* Featured Image */}
       <Link to={`/blog/${blog.slug}`} className="block relative h-52 overflow-hidden bg-slate-100">
-        <img
-          src={blog.featuredImage}
-          alt={blog.title}
-          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-          loading="lazy"
-          onError={(e) => {
-            e.currentTarget.src = 'https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&w=800&q=80';
-          }}
-        />
+        {blog.featuredImage ? (
+          <img
+            src={blog.featuredImage}
+            alt={blog.title}
+            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+            loading="lazy"
+            onError={(e) => {
+              e.currentTarget.style.display = 'none';
+            }}
+          />
+        ) : (
+          <div className="w-full h-full flex items-center justify-center bg-[#081A33] text-[#38BDF8]">
+            <BookOpen className="w-8 h-8 opacity-30" />
+          </div>
+        )}
         <div className="absolute top-4 left-4">
           <span className="px-2.5 py-1 rounded-md text-xs font-bold uppercase tracking-wider bg-white/95 text-[#0369A1] border border-[#BAE6FD] shadow-sm">
             {blog.category || 'General'}

@@ -184,16 +184,18 @@ export default function BlogDetailPage() {
           </div>
 
           {/* Featured Image */}
-          <div className="my-8 rounded-2xl overflow-hidden border border-[#E2E8F0] shadow-md bg-slate-100 max-h-[480px]">
-            <img
-              src={blog.featuredImage}
-              alt={blog.title}
-              className="w-full h-full object-cover"
-              onError={(e) => {
-                e.currentTarget.src = 'https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&w=1200&q=80';
-              }}
-            />
-          </div>
+          {blog.featuredImage && (
+            <div className="my-8 rounded-2xl overflow-hidden border border-[#E2E8F0] shadow-md bg-slate-100 max-h-[480px]">
+              <img
+                src={blog.featuredImage}
+                alt={blog.title}
+                className="w-full h-full object-cover"
+                onError={(e) => {
+                  e.currentTarget.style.display = 'none';
+                }}
+              />
+            </div>
+          )}
 
           {/* Article Formatted Body Content */}
           <article className="py-2">

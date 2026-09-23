@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Edit2, Trash2, ExternalLink, Tag } from 'lucide-react';
+import { Edit2, Trash2, ExternalLink, Tag, FileText } from 'lucide-react';
 
 export default function BlogTable({ blogs, onEdit, onDelete, loading }) {
   const navigate = useNavigate();
@@ -57,14 +57,20 @@ export default function BlogTable({ blogs, onEdit, onDelete, loading }) {
                 {/* Article Info & Thumbnail */}
                 <td className="py-4 px-4 sm:px-6">
                   <div className="flex items-center gap-3.5 max-w-md">
+                  {blog.featuredImage ? (
                     <img
                       src={blog.featuredImage}
                       alt={blog.title}
                       className="w-12 h-12 rounded-lg object-cover shrink-0 border border-[#E2E8F0] bg-slate-100"
                       onError={(e) => {
-                        e.currentTarget.src = 'https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&w=200&q=80';
+                        e.currentTarget.style.display = 'none';
                       }}
                     />
+                  ) : (
+                    <div className="w-12 h-12 rounded-lg bg-slate-100 text-slate-400 flex items-center justify-center shrink-0 border border-[#E2E8F0]">
+                      <FileText className="w-5 h-5 text-[#64748B]" />
+                    </div>
+                  )}
                     <div className="min-w-0">
                       <div className="font-bold text-[#0B1B3A] line-clamp-1 text-sm leading-snug">
                         {blog.title}

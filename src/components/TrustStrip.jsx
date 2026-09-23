@@ -3,6 +3,10 @@ import { ShieldCheck, Cpu, Layout, TrendingUp } from 'lucide-react';
 import { TRUST_PILLARS } from '../data/values';
 
 export default function TrustStrip() {
+  if (!TRUST_PILLARS || TRUST_PILLARS.length === 0) {
+    return null;
+  }
+
   const icons = [
     <Cpu className="w-5 h-5 text-[#38BDF8]" />,
     <TrendingUp className="w-5 h-5 text-[#38BDF8]" />,

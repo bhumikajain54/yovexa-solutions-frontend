@@ -5,13 +5,13 @@ import { inquiryService } from '../services/inquiryService';
 
 export default function Contact({ preselectedService, preselectedProject }) {
   const [contactInfo, setContactInfo] = useState({
-    email: "contact@yovexasolutions.com",
-    phone: "+91 (Contact Available on Inquiry)",
-    whatsapp: "+91 9876543210",
-    location: "India (Serving Clients Globally)",
-    turnaroundTime: "Within 24 Hours",
-    heading: "Have an Idea? Let's Build It.",
-    description: "Tell us what you're building, what problem you're solving, or what you want to improve. We'll help turn the idea into a practical digital solution.",
+    email: '',
+    phone: '',
+    whatsapp: '',
+    location: '',
+    turnaroundTime: '',
+    heading: '',
+    description: '',
   });
 
   const [formData, setFormData] = useState({
@@ -25,6 +25,7 @@ export default function Contact({ preselectedService, preselectedProject }) {
   });
 
   const [errors, setErrors] = useState({});
+  const [apiError, setApiError] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
 
@@ -107,6 +108,7 @@ export default function Contact({ preselectedService, preselectedProject }) {
     if (!validate()) return;
 
     setIsSubmitting(true);
+    setApiError(null);
 
     try {
       await inquiryService.submitInquiry(formData);
@@ -122,7 +124,7 @@ export default function Contact({ preselectedService, preselectedProject }) {
       });
     } catch (err) {
       console.error("Submission error:", err);
-      setIsSubmitted(true);
+      setApiError(err.response?.data?.message || err.message || "Failed to submit inquiry. Please try again.");
     } finally {
       setIsSubmitting(false);
     }
@@ -195,17 +197,19 @@ export default function Contact({ preselectedService, preselectedProject }) {
 
             {/* Direct Contact Info Tile */}
             <div className="p-6 rounded-2xl bg-[#0B1B3A] border border-white/15 space-y-4">
-              <div className="flex items-center gap-3.5 text-sm text-[#E2E8F0]">
-                <div className="w-10 h-10 rounded-lg bg-[#081A33] flex items-center justify-center text-[#38BDF8] shrink-0 border border-white/10">
-                  <Mail className="w-5 h-5" />
+              {contactInfo.email && (
+                <div className="flex items-center gap-3.5 text-sm text-[#E2E8F0]">
+                  <div className="w-10 h-10 rounded-lg bg-[#081A33] flex items-center justify-center text-[#38BDF8] shrink-0 border border-white/10">
+                    <Mail className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <div className="text-[11px] text-[#BAE6FD] uppercase font-bold tracking-wider">Official Inquiries</div>
+                    <a href={`mailto:${contactInfo.email}`} className="text-white font-semibold hover:text-[#38BDF8] transition-colors">
+                      {contactInfo.email}
+                    </a>
+                  </div>
                 </div>
-                <div>
-                  <div className="text-[11px] text-[#BAE6FD] uppercase font-bold tracking-wider">Official Inquiries</div>
-                  <a href={`mailto:${contactInfo.email}`} className="text-white font-semibold hover:text-[#38BDF8] transition-colors">
-                    {contactInfo.email}
-                  </a>
-                </div>
-              </div>
+              )}
 
               <div className="flex items-center gap-3.5 text-sm text-[#E2E8F0]">
                 <div className="w-10 h-10 rounded-lg bg-[#081A33] flex items-center justify-center text-[#38BDF8] shrink-0 border border-white/10">
@@ -217,15 +221,17 @@ export default function Contact({ preselectedService, preselectedProject }) {
                 </div>
               </div>
 
-              <div className="flex items-center gap-3.5 text-sm text-[#E2E8F0]">
-                <div className="w-10 h-10 rounded-lg bg-[#081A33] flex items-center justify-center text-[#38BDF8] shrink-0 border border-white/10">
-                  <MapPin className="w-5 h-5" />
+              {contactInfo.location && (
+                <div className="flex items-center gap-3.5 text-sm text-[#E2E8F0]">
+                  <div className="w-10 h-10 rounded-lg bg-[#081A33] flex items-center justify-center text-[#38BDF8] shrink-0 border border-white/10">
+                    <MapPin className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <div className="text-[11px] text-[#BAE6FD] uppercase font-bold tracking-wider">Location</div>
+                    <div className="text-white font-semibold">{contactInfo.location}</div>
+                  </div>
                 </div>
-                <div>
-                  <div className="text-[11px] text-[#BAE6FD] uppercase font-bold tracking-wider">Location</div>
-                  <div className="text-white font-semibold">{contactInfo.location}</div>
-                </div>
-              </div>
+              )}
             </div>
 
           </div>
@@ -396,6 +402,14 @@ export default function Contact({ preselectedService, preselectedProject }) {
                       </p>
                     )}
                   </div>
+
+                  {/* API Error Notification */}
+                  {apiError && (
+                    <div className="p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs font-semibold flex items-center gap-2">
+                      <AlertCircle className="w-4 h-4 shrink-0 text-rose-500" />
+                      <span>{apiError}</span>
+                    </div>
+                  )}
 
                   {/* Submit Button */}
                   <div className="pt-2">

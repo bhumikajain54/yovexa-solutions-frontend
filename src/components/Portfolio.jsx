@@ -47,7 +47,7 @@ export default function Portfolio({ onSelectProject }) {
   return (
     <section id="portfolio" className="py-24 bg-[#F8FAFC] text-[#0B1B3A] relative">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        
+
         {/* Section Heading */}
         <div className="flex flex-col md:flex-row md:items-end justify-between mb-12">
           <div>
@@ -77,11 +77,10 @@ export default function Portfolio({ onSelectProject }) {
               <button
                 key={cat.id}
                 onClick={() => setActiveCategory(cat.id)}
-                className={`whitespace-nowrap px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all duration-200 shrink-0 ${
-                  isActive
+                className={`whitespace-nowrap px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all duration-200 shrink-0 ${isActive
                     ? 'bg-[#0B1B3A] text-white shadow-md shadow-[#0B1B3A]/20 ring-2 ring-[#0EA5E9]'
                     : 'bg-white text-[#334155] hover:bg-[#F1F5F9] hover:text-[#0B1B3A] border border-[#E2E8F0]'
-                }`}
+                  }`}
               >
                 {cat.label}
               </button>

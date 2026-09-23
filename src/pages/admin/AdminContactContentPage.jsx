@@ -25,7 +25,9 @@ export default function AdminContactContentPage() {
       try {
         setLoading(true);
         const data = await contentService.getContactContent();
-        setFormData(data);
+        if (data) {
+          setFormData(prev => ({ ...prev, ...data }));
+        }
       } catch (err) {
         console.error('Failed to load contact info:', err);
         showToast('Failed to load contact info', 'error');

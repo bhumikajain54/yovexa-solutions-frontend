@@ -12,6 +12,11 @@ export default function Navbar({ onOpenContact }) {
   const navigate = useNavigate();
   const location = useLocation();
 
+  // State A: Dark/navy background (Top of homepage over dark #hero)
+  // State B: White/light background (Scrolled homepage or any internal page like /blog, /projects)
+  const isHomePage = location.pathname === '/';
+  const isDarkHeader = isHomePage && !scrolled;
+
   useEffect(() => {
     const handleScroll = () => {
       if (window.scrollY > 30) {
@@ -77,9 +82,9 @@ export default function Navbar({ onOpenContact }) {
   return (
     <header
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        scrolled
-          ? 'bg-white/95 backdrop-blur-md py-3.5 border-b border-[#E2E8F0] shadow-sm'
-          : 'bg-transparent py-5'
+        isDarkHeader
+          ? 'bg-transparent py-5'
+          : 'bg-white/95 backdrop-blur-md py-3.5 border-b border-[#E2E8F0] shadow-sm'
       }`}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -91,22 +96,23 @@ export default function Navbar({ onOpenContact }) {
             className="flex items-center focus:outline-none focus:ring-2 focus:ring-[#0EA5E9] rounded-lg p-1"
             aria-label="Yovexa Solutions Home"
           >
-            <Logo variant={scrolled ? 'light' : 'dark'} size="default" />
+            <Logo variant={isDarkHeader ? 'dark' : 'light'} size="default" />
           </a>
 
           {/* Desktop Navigation */}
           <nav
             className={`hidden md:flex items-center space-x-1 lg:space-x-2 p-1.5 rounded-full transition-all duration-300 ${
-              scrolled
-                ? 'bg-[#F8FAFC] border border-[#E2E8F0]'
-                : 'bg-[#0B1B3A]/80 border border-white/20 backdrop-blur-md'
+              isDarkHeader
+                ? 'bg-[#0B1B3A]/80 border border-white/20 backdrop-blur-md'
+                : 'bg-[#F8FAFC] border border-[#E2E8F0]'
             }`}
           >
             {COMPANY_INFO.navLinks.map((link) => {
-              const sectionId = link.href.replace('#', '');
+              const sectionId = link.href.replace('#', '').replace('/#', '');
               const isActive = activeSection === sectionId;
               
-              if (scrolled) {
+              if (!isDarkHeader) {
+                // State B: White header -> Dark navigation
                 return (
                   <a
                     key={link.label}
@@ -123,6 +129,7 @@ export default function Navbar({ onOpenContact }) {
                 );
               }
 
+              // State A: Dark header -> Light navigation
               return (
                 <a
                   key={link.label}
@@ -151,9 +158,9 @@ export default function Navbar({ onOpenContact }) {
                 }
               }}
               className={`group relative inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-bold text-white transition-all duration-200 transform hover:-translate-y-0.5 active:translate-y-0 ${
-                scrolled
-                  ? 'bg-[#0B1B3A] hover:bg-[#183B75] shadow-sm'
-                  : 'bg-[#0EA5E9] hover:bg-[#0284C7] shadow-glow-cyan-sm'
+                isDarkHeader
+                  ? 'bg-[#0EA5E9] hover:bg-[#0284C7] shadow-glow-cyan-sm'
+                  : 'bg-[#0B1B3A] hover:bg-[#183B75] shadow-sm'
               }`}
             >
               <span>Let's Talk</span>
@@ -166,9 +173,9 @@ export default function Navbar({ onOpenContact }) {
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               className={`p-2.5 rounded-lg border focus:outline-none focus:ring-2 focus:ring-[#0EA5E9] ${
-                scrolled
-                  ? 'text-[#0B1B3A] bg-[#F1F5F9] border-[#CBD5E1]'
-                  : 'text-white bg-[#0B1B3A]/80 border-white/20'
+                isDarkHeader
+                  ? 'text-white bg-[#0B1B3A]/80 border-white/20'
+                  : 'text-[#0B1B3A] bg-[#F1F5F9] border-[#CBD5E1]'
               }`}
               aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
             >

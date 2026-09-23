@@ -118,7 +118,7 @@ export default function ImageUploader({ value, onChange }) {
             alt="Featured Preview"
             className="w-full h-48 object-cover"
             onError={(e) => {
-              e.currentTarget.src = 'https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&w=1200&q=80';
+              e.currentTarget.style.display = 'none';
             }}
           />
           <button

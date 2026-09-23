@@ -91,36 +91,40 @@ export default function ProjectModal({ project, onClose, onDiscussProject }) {
           </div>
 
           {/* Key Features */}
-          <div>
-            <h4 className="text-xs uppercase tracking-wider font-extrabold text-[#0B1B3A] mb-3">
-              Core Architecture & Highlights
-            </h4>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              {project.features.map((feat, idx) => (
-                <div key={idx} className="flex items-start gap-2.5 p-3.5 rounded-lg bg-[#F8FAFC] border border-[#E2E8F0]">
-                  <CheckCircle2 className="w-4 h-4 text-[#0284C7] shrink-0 mt-0.5" />
-                  <span className="text-xs font-semibold text-[#0B1B3A] leading-snug">{feat}</span>
-                </div>
-              ))}
+          {((Array.isArray(project.features) && project.features.length > 0) || (typeof project.features === 'string' && project.features.trim())) && (
+            <div>
+              <h4 className="text-xs uppercase tracking-wider font-extrabold text-[#0B1B3A] mb-3">
+                Core Architecture & Highlights
+              </h4>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {(Array.isArray(project.features) ? project.features : project.features.split('\n').filter(Boolean)).map((feat, idx) => (
+                  <div key={idx} className="flex items-start gap-2.5 p-3.5 rounded-lg bg-[#F8FAFC] border border-[#E2E8F0]">
+                    <CheckCircle2 className="w-4 h-4 text-[#0284C7] shrink-0 mt-0.5" />
+                    <span className="text-xs font-semibold text-[#0B1B3A] leading-snug">{feat}</span>
+                  </div>
+                ))}
+              </div>
             </div>
-          </div>
+          )}
 
           {/* Tech Stack Badges */}
-          <div>
-            <h4 className="text-xs uppercase tracking-wider font-extrabold text-[#0B1B3A] mb-3">
-              Technologies Utilized
-            </h4>
-            <div className="flex flex-wrap gap-2">
-              {project.technologies.map((t, idx) => (
-                <span
-                  key={idx}
-                  className="px-3 py-1.5 rounded-lg bg-[#F1F5F9] text-[#0B1B3A] text-xs font-mono font-bold border border-[#CBD5E1]"
-                >
-                  {t}
-                </span>
-              ))}
+          {((Array.isArray(project.technologies) && project.technologies.length > 0) || (typeof project.technologies === 'string' && project.technologies.trim())) && (
+            <div>
+              <h4 className="text-xs uppercase tracking-wider font-extrabold text-[#0B1B3A] mb-3">
+                Technologies Utilized
+              </h4>
+              <div className="flex flex-wrap gap-2">
+                {(Array.isArray(project.technologies) ? project.technologies : project.technologies.split(',').map(s => s.trim()).filter(Boolean)).map((t, idx) => (
+                  <span
+                    key={idx}
+                    className="px-3 py-1.5 rounded-lg bg-[#F1F5F9] text-[#0B1B3A] text-xs font-mono font-bold border border-[#CBD5E1]"
+                  >
+                    {t}
+                  </span>
+                ))}
+              </div>
             </div>
-          </div>
+          )}
 
         </div>
 

@@ -4,26 +4,22 @@ import { ArrowRight, Code2, Sparkles, Layers, Shield, Smartphone, Globe, Termina
 import { contentService } from '../services/contentService';
 
 export default function Hero() {
-  const [hero, setHero] = useState({
-    badge: "Technology Partner for Modern Businesses",
-    heading: "Building Digital Solutions That",
-    highlightedText: "Move Your Business Forward.",
-    description: "Yovexa Solutions helps businesses turn ideas into scalable, secure, and user-friendly digital products. From web and mobile platforms to bespoke enterprise automation.",
-    primaryCtaText: "Start a Project",
-    primaryCtaLink: "#contact",
-    secondaryCtaText: "Explore Our Services",
-    secondaryCtaLink: "#services",
-    isVisible: true,
-  });
+  const [hero, setHero] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     let isMounted = true;
     contentService.getHeroContent().then(data => {
-      if (isMounted && data) {
-        setHero(prev => ({ ...prev, ...data }));
+      if (isMounted) {
+        setHero(data || null);
+        setLoading(false);
       }
     }).catch(err => {
-      console.warn('Using cached hero data', err);
+      console.warn('Failed to load active hero:', err);
+      if (isMounted) {
+        setHero(null);
+        setLoading(false);
+      }
     });
     return () => { isMounted = false; };
   }, []);
@@ -34,7 +30,52 @@ export default function Hero() {
     if (el) el.scrollIntoView({ behavior: 'smooth' });
   };
 
-  if (hero.isVisible === false) return null;
+  if (loading) {
+    return (
+      <section
+        id="hero"
+        className="relative min-h-[600px] pt-28 pb-20 md:pt-36 md:pb-28 flex items-center bg-[#081A33] overflow-hidden text-white tech-grid-dark"
+      >
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full animate-pulse">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center">
+            <div className="lg:col-span-7 space-y-6">
+              <div className="w-48 h-8 rounded-full bg-white/10" />
+              <div className="w-3/4 h-14 rounded-xl bg-white/10" />
+              <div className="w-full h-24 rounded-xl bg-white/10" />
+              <div className="flex gap-4 pt-4">
+                <div className="w-40 h-12 rounded-xl bg-white/10" />
+                <div className="w-40 h-12 rounded-xl bg-white/10" />
+              </div>
+            </div>
+            <div className="lg:col-span-5">
+              <div className="w-full h-80 rounded-2xl bg-white/5 border border-white/10" />
+            </div>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  if (hero?.isVisible === false) return null;
+
+  if (!hero) {
+    return (
+      <section
+        id="hero"
+        className="relative min-h-[400px] pt-28 pb-20 md:pt-36 md:pb-28 flex items-center justify-center bg-[#081A33] overflow-hidden text-white tech-grid-dark"
+      >
+        <div className="text-center max-w-lg mx-auto px-4 z-10">
+          <div className="w-12 h-12 rounded-xl bg-white/10 flex items-center justify-center mx-auto mb-4 text-[#38BDF8]">
+            <Sparkles className="w-6 h-6" />
+          </div>
+          <h2 className="text-xl font-bold font-display text-white">No Active Hero Content</h2>
+          <p className="text-sm text-[#CBD5E1] mt-2 font-normal">
+            Hero content will appear once created and activated in the dashboard.
+          </p>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section
@@ -58,7 +99,7 @@ export default function Hero() {
 
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center">
-          
+
           {/* Left Hero Column: Headline & Value Proposition */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -86,9 +127,11 @@ export default function Hero() {
             </h1>
 
             {/* High Contrast Supporting Headline */}
-            <p className="mt-6 text-base sm:text-lg lg:text-xl text-[#E2E8F0] max-w-2xl leading-relaxed font-normal">
-              {hero.description}
-            </p>
+            {hero.description && (
+              <p className="mt-6 text-base sm:text-lg lg:text-xl text-[#E2E8F0] max-w-2xl leading-relaxed font-normal">
+                {hero.description}
+              </p>
+            )}
 
             {/* Core Capability Badges */}
             <div className="mt-6 flex flex-wrap gap-2.5 sm:gap-3 text-xs sm:text-sm text-white">
@@ -153,7 +196,7 @@ export default function Hero() {
             className="lg:col-span-5 relative"
           >
             <div className="relative rounded-2xl bg-[#0B1B3A] border border-[#0EA5E9]/30 p-5 sm:p-6 shadow-2xl backdrop-blur-xl">
-              
+
               {/* Card Window Header */}
               <div className="flex items-center justify-between pb-4 border-b border-white/10 mb-4">
                 <div className="flex items-center gap-2">
@@ -195,7 +238,7 @@ export default function Hero() {
                     <span>Performance</span>
                     <Sparkles className="w-4 h-4 text-[#38BDF8]" />
                   </div>
-                  <div className="mt-2 text-2xl font-black text-white font-display">99.8%</div>
+                  <div className="mt-2 text-2xl font-black text-white font-display">Sub-Second</div>
                   <div className="text-xs font-medium text-[#BAE6FD] mt-0.5">Optimized UI & API Latency</div>
                 </div>
 

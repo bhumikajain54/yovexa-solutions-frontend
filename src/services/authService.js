@@ -1,54 +1,35 @@
-import { apiRequest } from './api';
+import { api, extractData } from './api';
 
 const TOKEN_KEY = 'yovexa_auth_token';
 const USER_KEY = 'yovexa_auth_user';
 
 export const authService = {
-  async login(email, password) {
-    try {
-      // First attempt to call the real backend endpoint
-      const res = await apiRequest('/auth/login', {
-        method: 'POST',
-        body: JSON.stringify({ email, password }),
-      });
-
-      if (res && res.token && res.user) {
-        localStorage.setItem(TOKEN_KEY, res.token);
-        localStorage.setItem(USER_KEY, JSON.stringify(res.user));
-        return res;
-      }
-      throw new Error(res.message || 'Invalid login response');
-    } catch (apiError) {
-      // If backend is not yet connected or in local dev mode:
-      // Provide valid authentication flow for testing
-      if (
-        (email.trim().toLowerCase() === 'admin@yovexasolutions.com' || email.trim().toLowerCase() === 'admin@yovexa.com' || email.trim().toLowerCase() === 'admin') &&
-        (password === 'admin123' || password === 'Yovexa@2026' || password === 'admin')
-      ) {
-        const mockUser = {
-          id: 'admin_1',
-          name: 'Yovexa Admin',
-          email: email.trim().toLowerCase(),
-          role: 'ADMIN',
-        };
-        const mockToken = `jwt_${btoa(JSON.stringify({ id: mockUser.id, role: 'ADMIN', exp: Date.now() + 86400000 }))}`;
-
-        localStorage.setItem(TOKEN_KEY, mockToken);
-        localStorage.setItem(USER_KEY, JSON.stringify(mockUser));
-
-        return { token: mockToken, user: mockUser };
-      }
-
-      // If credentials do not match
-      throw new Error(apiError.message.includes('Failed to fetch') 
-        ? 'Invalid email or password. (For development, use admin@yovexasolutions.com / admin123)' 
-        : apiError.message || 'Invalid credentials');
-    }
+  async register(data) {
+    const res = await api.post('/auth/register', data);
+    return extractData(res);
   },
 
-  logout() {
-    localStorage.removeItem(TOKEN_KEY);
-    localStorage.removeItem(USER_KEY);
+  async login(email, password) {
+    const res = await api.post('/auth/login', { email, password });
+    const data = extractData(res);
+
+    if (data && data.token && data.user) {
+      localStorage.setItem(TOKEN_KEY, data.token);
+      localStorage.setItem(USER_KEY, JSON.stringify(data.user));
+      return data;
+    }
+    throw new Error(res?.message || 'Invalid login response');
+  },
+
+  async logout() {
+    try {
+      await api.post('/auth/logout');
+    } catch {
+      // Ignore network errors on logout
+    } finally {
+      localStorage.removeItem(TOKEN_KEY);
+      localStorage.removeItem(USER_KEY);
+    }
   },
 
   getStoredToken() {

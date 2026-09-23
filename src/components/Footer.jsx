@@ -2,34 +2,26 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { ArrowUp, Mail, MapPin } from 'lucide-react';
 import { COMPANY_INFO } from '../data/company';
-import { contentService } from '../services/contentService';
+import { siteSettingsService } from '../services/siteSettingsService';
 import Logo from './Logo';
 
 export default function Footer() {
   const navigate = useNavigate();
   const location = useLocation();
-  const [footer, setFooter] = useState(null);
+  const [settings, setSettings] = useState(null);
 
   useEffect(() => {
-    const loadContent = async () => {
-      try {
-        const data = await contentService.getFooterContent();
-        setFooter(data);
-      } catch (err) {
-        console.error('Failed to load footer content:', err);
-      }
-    };
-    loadContent();
+    siteSettingsService.getSettings().then(setSettings);
   }, []);
 
-  const displayDescription = footer?.description || 'Building practical, scalable, and user-focused digital solutions for modern businesses. Transforming ideas into robust software.';
-  const displayEmail = footer?.email || COMPANY_INFO.contact.email;
-  const displayLocation = footer?.location || COMPANY_INFO.contact.location;
-  const displayCopyright = footer?.copyright || 'All rights reserved.';
-  
-  const displaySocials = footer?.socials 
-    ? footer.socials.filter(s => s.active && s.href)
-    : COMPANY_INFO.socials;
+  const displayDescription = settings?.description || '';
+  const displayEmail = settings?.email || '';
+  const displayLocation = settings?.location || '';
+  const displayCopyright = settings?.copyright || 'All rights reserved.';
+
+  // Built by siteSettingsService from flat backend fields (linkedin, github, etc.)
+  // Empty array when no social URLs are configured — nothing is rendered.
+  const displaySocials = settings?.socials || [];
 
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -107,9 +99,11 @@ export default function Footer() {
               <Logo variant="dark" size="default" />
             </a>
             
-            <p className="text-sm text-[#E2E8F0] max-w-sm leading-relaxed mt-2 font-normal">
-              {displayDescription}
-            </p>
+            {displayDescription && (
+              <p className="text-sm text-[#E2E8F0] max-w-sm leading-relaxed mt-2 font-normal">
+                {displayDescription}
+              </p>
+            )}
 
             {/* Dynamic Social Links */}
             <div className="pt-2 flex items-center gap-3">
@@ -174,16 +168,20 @@ export default function Footer() {
               Get In Touch
             </h4>
             <div className="space-y-2.5 text-xs text-[#E2E8F0]">
-              <div className="flex items-start gap-2">
-                <Mail className="w-3.5 h-3.5 text-[#38BDF8] shrink-0 mt-0.5" />
-                <a href={`mailto:${displayEmail}`} className="hover:text-[#38BDF8] transition-colors break-all font-medium">
-                  {displayEmail}
-                </a>
-              </div>
-              <div className="flex items-start gap-2">
-                <MapPin className="w-3.5 h-3.5 text-[#38BDF8] shrink-0 mt-0.5" />
-                <span className="font-medium">{displayLocation}</span>
-              </div>
+              {displayEmail && (
+                <div className="flex items-start gap-2">
+                  <Mail className="w-3.5 h-3.5 text-[#38BDF8] shrink-0 mt-0.5" />
+                  <a href={`mailto:${displayEmail}`} className="hover:text-[#38BDF8] transition-colors break-all font-medium">
+                    {displayEmail}
+                  </a>
+                </div>
+              )}
+              {displayLocation && (
+                <div className="flex items-start gap-2">
+                  <MapPin className="w-3.5 h-3.5 text-[#38BDF8] shrink-0 mt-0.5" />
+                  <span className="font-medium">{displayLocation}</span>
+                </div>
+              )}
               <div className="pt-2">
                 <span className="inline-block px-2.5 py-1 rounded bg-[#0EA5E9]/20 text-[#38BDF8] text-xs font-mono font-bold border border-[#0EA5E9]/40">
                   Direct Inquiries Open

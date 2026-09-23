@@ -4,36 +4,22 @@ import { contentService } from '../services/contentService';
 
 export default function About() {
   const [activeStage, setActiveStage] = useState(0);
-
-  const [about, setAbout] = useState({
-    sectionLabel: "About Yovexa Solutions",
-    title: "Technology Built Around",
-    titleHighlight: "Your Business",
-    description: "Yovexa Solutions is a technology startup focused on building practical, scalable, and user-focused digital solutions for modern businesses.",
-    additionalDescription: "We believe that high-impact software doesn't need to be over-engineered or weighed down by generic templates. We collaborate directly with growing businesses, startups, and operational leaders to translate complex business logic into clean, dependable software that drives real efficiency.",
-    primaryCtaText: "Work With Us",
-    primaryCtaLink: "#contact",
-    secondaryCtaText: "View Full Services",
-    secondaryCtaLink: "#services",
-    highlights: [
-      "Web Applications (React, Single Page, Admin Portals)",
-      "Mobile Applications (Android & Cross-Platform)",
-      "Custom Software & Operational Workflows",
-      "API & Backend Engineering (Spring Boot, Node.js)",
-      "Business Automation & System Integration",
-      "UI/UX Experience Design & Interaction Systems"
-    ],
-    isVisible: true,
-  });
+  const [about, setAbout] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     let isMounted = true;
     contentService.getAboutContent().then(data => {
-      if (isMounted && data) {
-        setAbout(prev => ({ ...prev, ...data }));
+      if (isMounted) {
+        setAbout(data || null);
+        setLoading(false);
       }
     }).catch(err => {
-      console.warn('Using cached about data', err);
+      console.warn('Failed to load active about content:', err);
+      if (isMounted) {
+        setAbout(null);
+        setLoading(false);
+      }
     });
     return () => { isMounted = false; };
   }, []);
@@ -75,16 +61,40 @@ export default function About() {
     if (el) el.scrollIntoView({ behavior: 'smooth' });
   };
 
-  if (about.isVisible === false) return null;
+  if (loading) {
+    return (
+      <section id="about" className="py-24 bg-[#F8FAFC] text-[#0B1B3A] relative tech-lines-pattern">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 animate-pulse">
+          <div className="h-8 bg-slate-200 rounded-full w-48 mb-6" />
+          <div className="h-12 bg-slate-200 rounded-xl w-3/4 mb-12" />
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
+            <div className="lg:col-span-6 space-y-4">
+              <div className="h-20 bg-slate-200 rounded-xl" />
+              <div className="h-20 bg-slate-200 rounded-xl" />
+              <div className="h-12 bg-slate-200 rounded-xl w-40" />
+            </div>
+            <div className="lg:col-span-6">
+              <div className="h-64 bg-slate-200 rounded-2xl" />
+            </div>
+          </div>
+        </div>
+      </section>
+    );
+  }
 
-  const focusAreas = about.highlights && about.highlights.length > 0 ? about.highlights : [
-    "Web Applications (React, Single Page, Admin Portals)",
-    "Mobile Applications (Android & Cross-Platform)",
-    "Custom Software & Operational Workflows",
-    "API & Backend Engineering (Spring Boot, Node.js)",
-    "Business Automation & System Integration",
-    "UI/UX Experience Design & Interaction Systems"
-  ];
+  if (about?.isVisible === false) return null;
+
+  if (!about) {
+    return (
+      <section id="about" className="py-24 bg-[#F8FAFC] text-[#0B1B3A] relative tech-lines-pattern">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center py-12 text-[#64748B]">
+          <p className="text-base sm:text-lg font-medium">No about content available at the moment.</p>
+        </div>
+      </section>
+    );
+  }
+
+  const focusAreas = Array.isArray(about.highlights) ? about.highlights : [];
 
   return (
     <section id="about" className="py-24 bg-[#F8FAFC] text-[#0B1B3A] relative tech-lines-pattern">
@@ -111,9 +121,11 @@ export default function About() {
           
           {/* Left Column: Business Narrative & Domain Pillars */}
           <div className="lg:col-span-6 space-y-6 text-left">
-            <p className="text-lg text-[#334155] leading-relaxed font-normal">
-              {about.description}
-            </p>
+            {about.description && (
+              <p className="text-lg text-[#334155] leading-relaxed font-normal">
+                {about.description}
+              </p>
+            )}
             
             {about.additionalDescription && (
               <p className="text-base text-[#475569] leading-relaxed font-normal">
@@ -121,23 +133,25 @@ export default function About() {
               </p>
             )}
 
-            <div className="pt-2">
-              <h4 className="text-xs uppercase tracking-widest font-extrabold text-[#0B1B3A] mb-4">
-                What We Build For Our Partners:
-              </h4>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                {focusAreas.map((area, i) => (
-                  <div key={i} className="flex items-start gap-2.5 p-2.5 rounded-lg bg-white border border-[#E2E8F0] shadow-sm">
-                    <div className="w-5 h-5 rounded-full bg-[#E0F2FE] flex items-center justify-center shrink-0 mt-0.5">
-                      <Check className="w-3.5 h-3.5 text-[#0284C7] stroke-[3]" />
+            {focusAreas.length > 0 && (
+              <div className="pt-2">
+                <h4 className="text-xs uppercase tracking-widest font-extrabold text-[#0B1B3A] mb-4">
+                  What We Build For Our Partners:
+                </h4>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                  {focusAreas.map((area, i) => (
+                    <div key={i} className="flex items-start gap-2.5 p-2.5 rounded-lg bg-white border border-[#E2E8F0] shadow-sm">
+                      <div className="w-5 h-5 rounded-full bg-[#E0F2FE] flex items-center justify-center shrink-0 mt-0.5">
+                        <Check className="w-3.5 h-3.5 text-[#0284C7] stroke-[3]" />
+                      </div>
+                      <span className="text-xs text-[#0B1B3A] font-semibold leading-tight">
+                        {area}
+                      </span>
                     </div>
-                    <span className="text-xs text-[#0B1B3A] font-semibold leading-tight">
-                      {area}
-                    </span>
-                  </div>
-                ))}
+                  ))}
+                </div>
               </div>
-            </div>
+            )}
 
             <div className="pt-4 flex items-center gap-4">
               <button

@@ -155,16 +155,18 @@ export default function ProjectDetailPage() {
           )}
 
           {/* Featured Hero Thumbnail */}
-          <div className="my-8 rounded-2xl overflow-hidden border border-[#E2E8F0] shadow-md bg-slate-100 max-h-[460px]">
-            <img
-              src={project.featuredImage}
-              alt={project.title}
-              className="w-full h-full object-cover"
-              onError={(e) => {
-                e.currentTarget.src = 'https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&w=1200&q=80';
-              }}
-            />
-          </div>
+          {project.featuredImage && (
+            <div className="my-8 rounded-2xl overflow-hidden border border-[#E2E8F0] shadow-md bg-slate-100 max-h-[460px]">
+              <img
+                src={project.featuredImage}
+                alt={project.title}
+                className="w-full h-full object-cover"
+                onError={(e) => {
+                  e.currentTarget.style.display = 'none';
+                }}
+              />
+            </div>
+          )}
 
           {/* High-level Summary */}
           <div className="p-6 rounded-2xl bg-[#081A33] text-white border border-white/10 shadow-lg mb-10 tech-grid-dark">

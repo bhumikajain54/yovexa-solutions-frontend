@@ -1,8 +1,11 @@
 /**
- * Generic API Client with JWT Header attachment & Error Handling
+ * Generic API Client with JWT Header attachment, URL Normalization & Response Unwrapping
  */
-const BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api';
+const BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8081/api';
 
+/**
+ * Normalizes URL and attaches JWT authentication headers
+ */
 export async function apiRequest(endpoint, options = {}) {
   const token = localStorage.getItem('yovexa_auth_token');
   
@@ -17,7 +20,17 @@ export async function apiRequest(endpoint, options = {}) {
     delete headers['Content-Type'];
   }
 
-  const url = endpoint.startsWith('http') ? endpoint : `${BASE_URL}${endpoint}`;
+  let cleanEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
+  let url;
+  if (cleanEndpoint.startsWith('http://') || cleanEndpoint.startsWith('https://')) {
+    url = cleanEndpoint;
+  } else {
+    const cleanBase = BASE_URL.endsWith('/') ? BASE_URL.slice(0, -1) : BASE_URL;
+    if (cleanBase.endsWith('/api') && cleanEndpoint.startsWith('/api/')) {
+      cleanEndpoint = cleanEndpoint.replace(/^\/api/, '');
+    }
+    url = `${cleanBase}${cleanEndpoint}`;
+  }
 
   try {
     const response = await fetch(url, {
@@ -36,7 +49,13 @@ export async function apiRequest(endpoint, options = {}) {
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
-      throw new Error(errorData.message || `Request failed with status ${response.status}`);
+      const message = errorData.message || (Array.isArray(errorData.errors) ? errorData.errors.join(', ') : null);
+      throw new Error(message || `Request failed with status ${response.status}`);
+    }
+
+    // Handle 204 No Content
+    if (response.status === 204) {
+      return { success: true };
     }
 
     return await response.json();
@@ -45,8 +64,32 @@ export async function apiRequest(endpoint, options = {}) {
   }
 }
 
+/**
+ * Extracts payload data from backend ApiResponse<T>
+ */
+export function extractData(res, fallback = null) {
+  if (res === null || res === undefined) return fallback;
+  if (res.data !== undefined) return res.data;
+  return res;
+}
+
+/**
+ * Extracts list from backend ApiResponse<List<T>> or ApiResponse<PagedResponse<T>>
+ */
+export function extractListData(res, fallback = []) {
+  if (!res) return fallback;
+  if (res.data !== undefined) {
+    if (Array.isArray(res.data)) return res.data;
+    if (res.data && Array.isArray(res.data.content)) return res.data.content;
+  }
+  if (Array.isArray(res)) return res;
+  return fallback;
+}
+
 export const api = {
   request: apiRequest,
+  extractData,
+  extractListData,
   get: (endpoint, options = {}) => 
     apiRequest(endpoint, { ...options, method: 'GET' }),
   
@@ -76,4 +119,3 @@ export const api = {
 };
 
 export default api;
-

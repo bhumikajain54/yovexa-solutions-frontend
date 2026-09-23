@@ -1,25 +1,4 @@
-import { apiRequest } from './api';
-import { INITIAL_BLOGS } from '../data/initialBlogs';
-
-const STORAGE_KEY = 'yovexa_blogs_data';
-
-// Helper to initialize or retrieve persistent blog records
-function getLocalBlogs() {
-  const data = localStorage.getItem(STORAGE_KEY);
-  if (!data) {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(INITIAL_BLOGS));
-    return INITIAL_BLOGS;
-  }
-  try {
-    return JSON.parse(data);
-  } catch {
-    return INITIAL_BLOGS;
-  }
-}
-
-function saveLocalBlogs(blogs) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(blogs));
-}
+import { api, extractData, extractListData } from './api';
 
 // Calculate reading time from text content
 export function calculateReadingTime(text = '') {
@@ -39,6 +18,17 @@ export function generateSlug(text = '') {
     .replace(/^-+|-+$/g, '');
 }
 
+function formatPublishedAt(status, publishedAt) {
+  if (status !== 'PUBLISHED') return null;
+  if (!publishedAt) return new Date().toISOString();
+  try {
+    const d = new Date(publishedAt);
+    return isNaN(d.getTime()) ? new Date().toISOString() : d.toISOString();
+  } catch {
+    return new Date().toISOString();
+  }
+}
+
 export const blogService = {
   // Public: Get all published blogs with optional search/category filter
   async getPublicBlogs({ search = '', category = 'all' } = {}) {
@@ -48,76 +38,51 @@ export const blogService = {
       if (category && category !== 'all') queryParams.append('category', category);
       
       const queryStr = queryParams.toString() ? `?${queryParams.toString()}` : '';
-      const response = await apiRequest(`/blogs${queryStr}`);
-      return response;
-    } catch {
-      // Fallback to local persistent store
-      const blogs = getLocalBlogs();
-      let filtered = blogs.filter((b) => b.status === 'PUBLISHED');
-
-      if (category && category !== 'all') {
-        filtered = filtered.filter(
-          (b) => b.category?.toLowerCase() === category.toLowerCase()
-        );
-      }
-
-      if (search) {
-        const query = search.toLowerCase();
-        filtered = filtered.filter(
-          (b) =>
-            b.title?.toLowerCase().includes(query) ||
-            b.excerpt?.toLowerCase().includes(query) ||
-            b.tags?.some((t) => t.toLowerCase().includes(query))
-        );
-      }
-
-      // Sort descending by publishedAt
-      return filtered.sort(
-        (a, b) => new Date(b.publishedAt || b.createdAt) - new Date(a.publishedAt || a.createdAt)
-      );
+      const response = await api.get(`/blogs${queryStr}`);
+      return extractListData(response);
+    } catch (err) {
+      console.error('Failed to fetch public blogs:', err);
+      return [];
     }
   },
 
   // Public: Get single blog by slug (must be PUBLISHED)
   async getBlogBySlug(slug) {
     try {
-      const response = await apiRequest(`/blogs/${slug}`);
-      return response;
-    } catch {
-      const blogs = getLocalBlogs();
-      const blog = blogs.find((b) => b.slug === slug && b.status === 'PUBLISHED');
-      if (!blog) {
-        throw new Error('Blog post not found or is currently in draft.');
-      }
-      return blog;
+      const response = await api.get(`/blogs/${slug}`);
+      return extractData(response);
+    } catch (err) {
+      console.error('Failed to fetch blog by slug:', err);
+      throw err;
     }
   },
 
   // Admin: Get all blogs (both Draft and Published)
-  async getAdminBlogs() {
+  async getAdminBlogs({ search = '', category = '', status = '', page = 0, size = 100 } = {}) {
     try {
-      const response = await apiRequest('/admin/blogs');
-      return response;
-    } catch {
-      const blogs = getLocalBlogs();
-      return [...blogs].sort(
-        (a, b) => new Date(b.updatedAt || b.createdAt) - new Date(a.updatedAt || a.createdAt)
-      );
+      const params = new URLSearchParams();
+      if (search) params.append('search', search);
+      if (category && category !== 'all') params.append('category', category);
+      if (status && status !== 'ALL') params.append('status', status);
+      params.append('page', String(page));
+      params.append('size', String(size));
+
+      const response = await api.get(`/admin/blogs?${params.toString()}`);
+      return extractListData(response);
+    } catch (err) {
+      console.error('Failed to fetch admin blogs:', err);
+      return [];
     }
   },
 
   // Admin: Get single blog by ID for editing
   async getAdminBlogById(id) {
     try {
-      const response = await apiRequest(`/admin/blogs/${id}`);
-      return response;
-    } catch {
-      const blogs = getLocalBlogs();
-      const blog = blogs.find((b) => String(b.id) === String(id));
-      if (!blog) {
-        throw new Error('Blog not found');
-      }
-      return blog;
+      const response = await api.get(`/admin/blogs/${id}`);
+      return extractData(response);
+    } catch (err) {
+      console.error('Failed to fetch admin blog by id:', err);
+      throw err;
     }
   },
 
@@ -125,118 +90,79 @@ export const blogService = {
   async createBlog(data) {
     const slug = data.slug?.trim() || generateSlug(data.title);
     const readingTime = calculateReadingTime(data.content);
-    const now = new Date().toISOString();
+    const tags = Array.isArray(data.tags)
+      ? data.tags
+      : data.tags
+        ? data.tags.split(',').map((t) => t.trim()).filter(Boolean)
+        : [];
 
-    const newBlog = {
-      id: `blog_${Date.now()}`,
+    const payload = {
       title: data.title?.trim(),
       slug,
       excerpt: data.excerpt?.trim(),
       content: data.content,
-      featuredImage: data.featuredImage || 'https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&w=1200&q=80',
+      featuredImage: data.featuredImage || '',
       category: data.category || 'General',
       author: data.author?.trim() || 'Yovexa Solutions',
-      tags: Array.isArray(data.tags) ? data.tags : data.tags ? data.tags.split(',').map((t) => t.trim()).filter(Boolean) : [],
+      tags,
       status: data.status || 'DRAFT',
       readingTime,
-      publishedAt: data.status === 'PUBLISHED' ? (data.publishedAt || now.split('T')[0]) : null,
-      createdAt: now,
-      updatedAt: now,
+      publishedAt: formatPublishedAt(data.status, data.publishedAt),
       seoTitle: data.seoTitle?.trim() || data.title?.trim(),
       seoDescription: data.seoDescription?.trim() || data.excerpt?.trim(),
     };
 
-    try {
-      const response = await apiRequest('/admin/blogs', {
-        method: 'POST',
-        body: JSON.stringify(newBlog),
-      });
-      return response;
-    } catch {
-      const blogs = getLocalBlogs();
-      // Check slug uniqueness
-      if (blogs.some((b) => b.slug === newBlog.slug)) {
-        newBlog.slug = `${newBlog.slug}-${Math.floor(Math.random() * 1000)}`;
-      }
-      const updated = [newBlog, ...blogs];
-      saveLocalBlogs(updated);
-      return newBlog;
-    }
+    const response = await api.post('/admin/blogs', payload);
+    return extractData(response);
   },
 
   // Admin: Update blog
   async updateBlog(id, data) {
     const readingTime = calculateReadingTime(data.content);
-    const now = new Date().toISOString();
+    const tags = Array.isArray(data.tags)
+      ? data.tags
+      : data.tags
+        ? data.tags.split(',').map((t) => t.trim()).filter(Boolean)
+        : data.tags;
 
-    try {
-      const response = await apiRequest(`/admin/blogs/${id}`, {
-        method: 'PUT',
-        body: JSON.stringify({
-          ...data,
-          readingTime,
-          updatedAt: now,
-        }),
-      });
-      return response;
-    } catch {
-      const blogs = getLocalBlogs();
-      const index = blogs.findIndex((b) => String(b.id) === String(id));
-      if (index === -1) {
-        throw new Error('Blog not found');
-      }
+    const payload = {
+      title: data.title?.trim(),
+      slug: data.slug?.trim() || (data.title ? generateSlug(data.title) : undefined),
+      excerpt: data.excerpt?.trim(),
+      content: data.content,
+      featuredImage: data.featuredImage,
+      category: data.category,
+      author: data.author?.trim(),
+      tags,
+      status: data.status,
+      readingTime,
+      publishedAt: formatPublishedAt(data.status, data.publishedAt),
+      seoTitle: data.seoTitle?.trim() || data.title?.trim(),
+      seoDescription: data.seoDescription?.trim() || data.excerpt?.trim(),
+    };
 
-      const existing = blogs[index];
-      const updatedBlog = {
-        ...existing,
-        ...data,
-        slug: data.slug?.trim() || generateSlug(data.title) || existing.slug,
-        tags: Array.isArray(data.tags) ? data.tags : data.tags ? data.tags.split(',').map((t) => t.trim()).filter(Boolean) : existing.tags,
-        readingTime,
-        publishedAt: data.status === 'PUBLISHED' ? (data.publishedAt || existing.publishedAt || now.split('T')[0]) : existing.publishedAt,
-        updatedAt: now,
-      };
-
-      blogs[index] = updatedBlog;
-      saveLocalBlogs(blogs);
-      return updatedBlog;
-    }
+    const response = await api.put(`/admin/blogs/${id}`, payload);
+    return extractData(response);
   },
 
   // Admin: Delete blog
   async deleteBlog(id) {
-    try {
-      const response = await apiRequest(`/admin/blogs/${id}`, {
-        method: 'DELETE',
-      });
-      return response;
-    } catch {
-      const blogs = getLocalBlogs();
-      const filtered = blogs.filter((b) => String(b.id) !== String(id));
-      saveLocalBlogs(filtered);
-      return { success: true, message: 'Blog deleted successfully' };
-    }
+    await api.delete(`/admin/blogs/${id}`);
+    return { success: true, message: 'Blog deleted successfully' };
   },
 
   // Admin: Dashboard stats summary
   async getAdminStats() {
     try {
-      const response = await apiRequest('/admin/dashboard');
-      return response;
-    } catch {
-      const blogs = getLocalBlogs();
-      const total = blogs.length;
-      const published = blogs.filter((b) => b.status === 'PUBLISHED').length;
-      const draft = blogs.filter((b) => b.status === 'DRAFT').length;
-      const recent = [...blogs]
-        .sort((a, b) => new Date(b.updatedAt || b.createdAt) - new Date(a.updatedAt || a.createdAt))
-        .slice(0, 5);
-
+      const response = await api.get('/admin/dashboard');
+      return extractData(response);
+    } catch (err) {
+      console.error('Failed to fetch admin stats:', err);
       return {
-        totalBlogs: total,
-        publishedBlogs: published,
-        draftBlogs: draft,
-        recentBlogs: recent,
+        totalBlogs: 0,
+        publishedBlogs: 0,
+        draftBlogs: 0,
+        recentBlogs: [],
       };
     }
   },

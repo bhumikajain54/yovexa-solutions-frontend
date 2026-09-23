@@ -1,154 +1,79 @@
-import { api } from './api';
-import { SERVICES_DATA } from '../data/services';
-
-const SERVICES_STORAGE_KEY = 'yovexa_cms_services';
-
-// Initialize services with displayOrder and isActive
-function getInitialServices() {
-  return SERVICES_DATA.map((srv, idx) => ({
-    ...srv,
-    slug: srv.id,
-    description: srv.deliverables,
-    displayOrder: idx + 1,
-    isActive: true,
-    featured: idx === 0,
-    buttonText: "Discuss Requirement",
-    buttonLink: "#contact",
-  }));
-}
-
-function getStoredServices() {
-  try {
-    const raw = localStorage.getItem(SERVICES_STORAGE_KEY);
-    if (raw) return JSON.parse(raw);
-    const initial = getInitialServices();
-    localStorage.setItem(SERVICES_STORAGE_KEY, JSON.stringify(initial));
-    return initial;
-  } catch {
-    return getInitialServices();
-  }
-}
-
-function persistServices(services) {
-  try {
-    localStorage.setItem(SERVICES_STORAGE_KEY, JSON.stringify(services));
-  } catch (err) {
-    console.error('Failed to persist services:', err);
-  }
-}
+import { api, extractData, extractListData } from './api';
 
 export const servicesService = {
   async getServices({ activeOnly = false } = {}) {
     try {
-      const data = await api.get(activeOnly ? '/services' : '/admin/services');
-      return data;
-    } catch {
-      const list = getStoredServices();
-      const filtered = activeOnly ? list.filter(s => s.isActive !== false) : list;
-      return filtered.sort((a, b) => (a.displayOrder || 0) - (b.displayOrder || 0));
+      const res = await api.get(activeOnly ? '/services' : '/admin/services');
+      const list = extractListData(res);
+      return list.sort((a, b) => (a.displayOrder || 0) - (b.displayOrder || 0));
+    } catch (err) {
+      console.error('Failed to fetch services:', err);
+      return [];
     }
   },
 
   async getServiceById(id) {
     try {
-      const data = await api.get(`/admin/services/${id}`);
-      return data;
-    } catch {
-      const list = getStoredServices();
-      return list.find(s => s.id === id || s.slug === id) || null;
+      const res = await api.get(`/admin/services/${id}`);
+      return extractData(res);
+    } catch (err) {
+      console.error('Failed to fetch service by id:', err);
+      throw err;
     }
   },
 
   async createService(serviceData) {
-    const list = getStoredServices();
-    const newService = {
+    const payload = {
       ...serviceData,
-      id: serviceData.slug || `srv-${Date.now()}`,
-      displayOrder: serviceData.displayOrder || list.length + 1,
-      isActive: serviceData.isActive !== false,
       features: Array.isArray(serviceData.features) 
         ? serviceData.features 
         : typeof serviceData.features === 'string' 
-          ? serviceData.features.split('\n').filter(Boolean) 
+          ? serviceData.features.split('\n').map(s => s.trim()).filter(Boolean) 
           : [],
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
     };
 
-    try {
-      const created = await api.post('/admin/services', newService);
-      list.push(created);
-      persistServices(list);
-      return created;
-    } catch {
-      list.push(newService);
-      persistServices(list);
-      return newService;
-    }
+    const res = await api.post('/admin/services', payload);
+    return extractData(res);
   },
 
   async updateService(id, serviceData) {
-    const list = getStoredServices();
-    const index = list.findIndex(s => s.id === id);
-    if (index === -1) throw new Error('Service not found');
-
-    const updated = {
-      ...list[index],
+    const payload = {
       ...serviceData,
       features: Array.isArray(serviceData.features)
         ? serviceData.features
         : typeof serviceData.features === 'string'
-          ? serviceData.features.split('\n').filter(Boolean)
-          : list[index].features,
-      updatedAt: new Date().toISOString(),
+          ? serviceData.features.split('\n').map(s => s.trim()).filter(Boolean)
+          : serviceData.features,
     };
 
-    try {
-      const res = await api.put(`/admin/services/${id}`, updated);
-      list[index] = res;
-      persistServices(list);
-      return res;
-    } catch {
-      list[index] = updated;
-      persistServices(list);
-      return updated;
-    }
+    const res = await api.put(`/admin/services/${id}`, payload);
+    return extractData(res);
   },
 
   async deleteService(id) {
-    try {
-      await api.delete(`/admin/services/${id}`);
-    } catch {
-      // Fallback local deletion
-    }
-    const list = getStoredServices();
-    const updated = list.filter(s => s.id !== id);
-    persistServices(updated);
+    await api.delete(`/admin/services/${id}`);
     return true;
   },
 
   async moveService(id, direction) {
-    const list = getStoredServices().sort((a, b) => (a.displayOrder || 0) - (b.displayOrder || 0));
+    const list = await this.getServices({ activeOnly: false });
     const index = list.findIndex(s => s.id === id);
     if (index === -1) return list;
 
-    if (direction === 'up' && index > 0) {
-      const tempOrder = list[index].displayOrder;
-      list[index].displayOrder = list[index - 1].displayOrder;
-      list[index - 1].displayOrder = tempOrder;
-      const temp = list[index];
-      list[index] = list[index - 1];
-      list[index - 1] = temp;
-    } else if (direction === 'down' && index < list.length - 1) {
-      const tempOrder = list[index].displayOrder;
-      list[index].displayOrder = list[index + 1].displayOrder;
-      list[index + 1].displayOrder = tempOrder;
-      const temp = list[index];
-      list[index] = list[index + 1];
-      list[index + 1] = temp;
-    }
+    const targetIndex = direction === 'up' ? index - 1 : index + 1;
+    if (targetIndex < 0 || targetIndex >= list.length) return list;
 
-    persistServices(list);
-    return list;
+    const current = list[index];
+    const target = list[targetIndex];
+
+    const currentOrder = current.displayOrder ?? (index + 1);
+    const targetOrder = target.displayOrder ?? (targetIndex + 1);
+
+    await Promise.all([
+      this.updateService(current.id, { ...current, displayOrder: targetOrder }),
+      this.updateService(target.id, { ...target, displayOrder: currentOrder })
+    ]);
+
+    return this.getServices({ activeOnly: false });
   }
 };

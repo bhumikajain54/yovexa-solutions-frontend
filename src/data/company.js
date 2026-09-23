@@ -1,21 +1,9 @@
 export const COMPANY_INFO = {
   name: "Yovexa Solutions",
-  tagline: "Building Digital Solutions That Move Your Business Forward.",
-  shortDescription: "Yovexa Solutions is a modern technology partner helping businesses turn ideas into scalable, secure, and user-friendly digital products.",
 
-  contact: {
-    email: "contact@yovexasolutions.com",
-    phone: "+91 (Contact Available on Inquiry)",
-    location: "India (Serving Clients Globally)",
-    responseSchedule: "Mon - Sat: 9:00 AM - 7:00 PM IST",
-    turnaroundTime: "Within 24 Hours",
-  },
-
-  socials: [
-    { name: "LinkedIn", href: "https://www.linkedin.com/in/jain-bhumika", icon: "Linkedin" },
-    { name: "GitHub", href: "https://github.com/bhumikajain54", icon: "Github" },
-    { name: "Instagram", href: "https://www.instagram.com/yovexaprime/", icon: "Instagram" },
-  ],
+  // Social links are NOT stored here.
+  // They are fetched dynamically from the backend SiteSettings API
+  // via siteSettingsService and consumed directly by Footer.jsx.
 
   navLinks: [
     { label: "Home", href: "/#hero" },

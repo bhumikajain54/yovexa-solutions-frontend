@@ -9,6 +9,7 @@ import BlogListingPage from './pages/BlogListingPage';
 import BlogDetailPage from './pages/BlogDetailPage';
 import ProjectDetailPage from './pages/ProjectDetailPage';
 import LoginPage from './pages/LoginPage';
+import RegisterPage from './pages/RegisterPage';
 import NotFoundPage from './pages/NotFoundPage';
 
 // Admin Components & Pages
@@ -53,6 +54,7 @@ export default function App() {
             <Route path="/blog/:slug" element={<BlogDetailPage />} />
             <Route path="/projects/:slug" element={<ProjectDetailPage />} />
             <Route path="/login" element={<LoginPage />} />
+            <Route path="/register" element={<RegisterPage />} />
 
             {/* Protected Admin Routes */}
             <Route

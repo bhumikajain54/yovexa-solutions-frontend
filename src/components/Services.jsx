@@ -74,6 +74,10 @@ export default function Services({ onSelectService }) {
               </div>
             ))}
           </div>
+        ) : services.length === 0 ? (
+          <div className="text-center py-12 text-[#64748B]">
+            <p className="text-base sm:text-lg">No services available at the moment.</p>
+          </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {services.map((service, idx) => (

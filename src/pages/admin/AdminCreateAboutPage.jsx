@@ -11,26 +11,19 @@ export default function AdminCreateAboutPage() {
   const [saving, setSaving] = useState(false);
 
   const [formData, setFormData] = useState({
-    sectionLabel: 'About Yovexa Solutions',
+    sectionLabel: '',
     title: '',
     titleHighlight: '',
     description: '',
     additionalDescription: '',
-    primaryCtaText: 'Work With Us',
-    primaryCtaLink: '#contact',
-    secondaryCtaText: 'View Full Services',
-    secondaryCtaLink: '#services',
-    image: 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=1200&q=80',
-    imageAlt: 'Yovexa Engineering Team',
-    highlights: [
-      'Web Applications (React, Single Page, Admin Portals)',
-      'Mobile Applications (Android & Cross-Platform)',
-      'Custom Software & Operational Workflows',
-      'API & Backend Engineering (Spring Boot, Node.js)',
-      'Business Automation & System Integration',
-      'UI/UX Experience Design & Interaction Systems'
-    ],
-    status: 'PUBLISHED',
+    primaryCtaText: '',
+    primaryCtaLink: '',
+    secondaryCtaText: '',
+    secondaryCtaLink: '',
+    image: '',
+    imageAlt: '',
+    highlights: [],
+    status: 'DRAFT',
     isActive: false,
     isVisible: true,
   });

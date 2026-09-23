@@ -32,7 +32,9 @@ export default function AdminAboutContentPage() {
       try {
         setLoading(true);
         const data = await contentService.getAboutContent();
-        setFormData(data);
+        if (data) {
+          setFormData(prev => ({ ...prev, ...data }));
+        }
       } catch (err) {
         console.error('Failed to load about content:', err);
         showToast('Failed to load about content', 'error');
