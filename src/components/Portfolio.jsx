@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Sparkles, ArrowRight, Code2, ShoppingBag, BookOpen, Navigation, Boxes, Activity, CreditCard } from 'lucide-react';
+import { Sparkles, ArrowRight } from 'lucide-react';
 import { projectService } from '../services/projectService';
 import DynamicIcon from './DynamicIcon';
 
@@ -28,21 +28,31 @@ export default function Portfolio({ onSelectProject }) {
     return () => { isMounted = false; };
   }, []);
 
+  const normalizeCategory = (cat) => {
+    if (!cat) return '';
+    const upper = cat.toUpperCase();
+    const map = {
+      'WEB': 'WEB_APPLICATIONS',
+      'MOBILE': 'MOBILE_APPS',
+      'BUSINESS': 'BUSINESS_SYSTEMS',
+      'ECOMMERCE': 'E_COMMERCE',
+      'SAAS': 'SAAS_PLATFORMS',
+    };
+    return map[upper] || upper;
+  };
+
   const filteredProjects = activeCategory === 'all'
     ? projects
-    : projects.filter(p => p.category === activeCategory || (Array.isArray(p.secondaryCategories) && p.secondaryCategories.includes(activeCategory)));
+    : projects.filter(p => {
+        const pCat = normalizeCategory(p.category);
+        const aCat = normalizeCategory(activeCategory);
+        if (pCat === aCat) return true;
+        if (Array.isArray(p.secondaryCategories)) {
+          return p.secondaryCategories.some(sc => normalizeCategory(sc) === aCat);
+        }
+        return false;
+      });
 
-  const getProjectIcon = (iconName) => {
-    switch (iconName) {
-      case 'ShoppingBag': return <ShoppingBag className="w-6 h-6 text-[#0EA5E9]" />;
-      case 'BookOpen': return <BookOpen className="w-6 h-6 text-[#0EA5E9]" />;
-      case 'Navigation': return <Navigation className="w-6 h-6 text-[#0EA5E9]" />;
-      case 'Boxes': return <Boxes className="w-6 h-6 text-[#0EA5E9]" />;
-      case 'Activity': return <Activity className="w-6 h-6 text-[#0EA5E9]" />;
-      case 'CreditCard': return <CreditCard className="w-6 h-6 text-[#0EA5E9]" />;
-      default: return <Code2 className="w-6 h-6 text-[#0EA5E9]" />;
-    }
-  };
 
   return (
     <section id="portfolio" className="py-24 bg-[#F8FAFC] text-[#0B1B3A] relative">
@@ -102,8 +112,14 @@ export default function Portfolio({ onSelectProject }) {
           </div>
         ) : filteredProjects.length === 0 ? (
           <div className="bg-white rounded-2xl border border-[#E2E8F0] p-12 text-center shadow-sm">
-            <h3 className="text-base font-bold text-[#0B1B3A]">No projects found in this category</h3>
-            <p className="text-xs text-[#64748B] mt-1">Select another category or view all projects.</p>
+            <h3 className="text-base font-bold text-[#0B1B3A]">
+              {projects.length === 0 ? 'No projects published yet' : 'No projects found in this category'}
+            </h3>
+            <p className="text-xs text-[#64748B] mt-1">
+              {projects.length === 0
+                ? 'Check back soon for our latest case studies and engineered solutions.'
+                : 'Select another category or view all projects.'}
+            </p>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -117,7 +133,7 @@ export default function Portfolio({ onSelectProject }) {
                   <div className="flex items-center justify-between gap-2 mb-4">
                     {/* Category Label */}
                     <span className="text-xs font-bold uppercase tracking-wider text-[#0284C7] bg-[#E0F2FE] px-2.5 py-1 rounded-md border border-[#BAE6FD]">
-                      {project.projectType || project.category}
+                      {project.projectType || (project.category ? project.category.replace(/_/g, ' ') : 'Project')}
                     </span>
 
                     {/* Status Badge */}
@@ -129,7 +145,7 @@ export default function Portfolio({ onSelectProject }) {
                   {/* Project Title & Icon Header */}
                   <div className="flex items-start gap-3.5">
                     <div className="w-12 h-12 rounded-xl bg-[#0B1B3A] flex items-center justify-center shrink-0 shadow-sm group-hover:bg-[#0284C7] transition-colors duration-300">
-                      {getProjectIcon(project.accentIcon || 'Code2')}
+                      <DynamicIcon name={project.accentIcon} className="w-6 h-6 text-[#0EA5E9]" fallback="Code2" />
                     </div>
                     <div>
                       <h3 className="text-xl font-bold text-[#0B1B3A] font-display leading-tight group-hover:text-[#0284C7] transition-colors">

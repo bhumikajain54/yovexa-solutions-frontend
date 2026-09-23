@@ -1,10 +1,10 @@
 export const PROJECT_CATEGORIES = [
   { id: "all", label: "All Projects" },
-  { id: "web", label: "Web Applications" },
-  { id: "mobile", label: "Mobile Apps" },
-  { id: "business", label: "Business Systems" },
-  { id: "ecommerce", label: "E-Commerce" },
-  { id: "saas", label: "SaaS Platforms" },
+  { id: "WEB_APPLICATIONS", label: "Web Applications" },
+  { id: "MOBILE_APPS", label: "Mobile Apps" },
+  { id: "BUSINESS_SYSTEMS", label: "Business Systems" },
+  { id: "E_COMMERCE", label: "E-Commerce" },
+  { id: "SAAS_PLATFORMS", label: "SaaS Platforms" },
 ];
 
 export const PROJECTS_DATA = [];

@@ -73,7 +73,8 @@ export default function AdminProjectsPage() {
       title.toLowerCase().includes(searchTerm.toLowerCase()) ||
       (p.summary && p.summary.toLowerCase().includes(searchTerm.toLowerCase())) ||
       (Array.isArray(p.technologies) && p.technologies.some(t => t.toLowerCase().includes(searchTerm.toLowerCase())));
-    const matchesCategory = selectedCategory === 'all' || p.category === selectedCategory;
+    const matchesCategory = selectedCategory === 'all' || 
+      (p.category && p.category.toUpperCase() === selectedCategory.toUpperCase());
     const matchesStatus = statusFilter === 'ALL' || p.status === statusFilter;
     return matchesSearch && matchesCategory && matchesStatus;
   });

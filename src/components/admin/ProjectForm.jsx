@@ -12,7 +12,7 @@ export default function ProjectForm({ initialData = null, onSubmit, onCancel, lo
     title: '',
     slug: '',
     subtitle: '',
-    category: 'web',
+    category: 'WEB_APPLICATIONS',
     projectType: 'Web Applications',
     clientLabel: '',
     summary: '',
@@ -40,7 +40,12 @@ export default function ProjectForm({ initialData = null, onSubmit, onCancel, lo
         title: initialData.title || initialData.projectName || '',
         slug: initialData.slug || initialData.id || '',
         subtitle: initialData.subtitle || '',
-        category: initialData.category || 'web',
+        category: (function(cat) {
+          if (!cat) return 'WEB_APPLICATIONS';
+          const upper = cat.toUpperCase();
+          const map = { 'WEB': 'WEB_APPLICATIONS', 'MOBILE': 'MOBILE_APPS', 'BUSINESS': 'BUSINESS_SYSTEMS', 'ECOMMERCE': 'E_COMMERCE', 'SAAS': 'SAAS_PLATFORMS' };
+          return map[upper] || upper;
+        })(initialData.category),
         projectType: initialData.projectType || 'Web Applications',
         clientLabel: initialData.clientLabel || initialData.statusBadge || 'Case Study / Prototype',
         summary: initialData.summary || initialData.shortDescription || '',
@@ -107,11 +112,11 @@ export default function ProjectForm({ initialData = null, onSubmit, onCancel, lo
   };
 
   const categories = [
-    { id: 'web', label: 'Web Applications' },
-    { id: 'mobile', label: 'Mobile Apps' },
-    { id: 'business', label: 'Business Systems' },
-    { id: 'ecommerce', label: 'E-Commerce' },
-    { id: 'saas', label: 'SaaS Platforms' },
+    { id: 'WEB_APPLICATIONS', label: 'Web Applications' },
+    { id: 'MOBILE_APPS', label: 'Mobile Apps' },
+    { id: 'BUSINESS_SYSTEMS', label: 'Business Systems' },
+    { id: 'E_COMMERCE', label: 'E-Commerce' },
+    { id: 'SAAS_PLATFORMS', label: 'SaaS Platforms' },
   ];
 
   return (

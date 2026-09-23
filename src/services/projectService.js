@@ -12,13 +12,13 @@ export const projectService = {
       let endpoint;
       if (publishedOnly) {
         const params = new URLSearchParams();
-        if (category && category !== 'all') params.append('category', category);
+        if (category && category.toLowerCase() !== 'all') params.append('category', category.toUpperCase());
         if (search) params.append('search', search);
         const query = params.toString();
         endpoint = query ? `/projects?${query}` : '/projects';
       } else {
         const params = new URLSearchParams();
-        if (category && category !== 'all') params.append('category', category);
+        if (category && category.toLowerCase() !== 'all') params.append('category', category.toUpperCase());
         if (search) params.append('search', search);
         params.append('size', '100');
         const query = params.toString();

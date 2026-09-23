@@ -137,7 +137,7 @@ export default function Contact({ preselectedService, preselectedProject }) {
       <div className="absolute bottom-10 right-10 w-[400px] h-[400px] bg-blue-600/10 rounded-full blur-3xl pointer-events-none" />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        
+
         {/* Section Header */}
         <div className="text-center max-w-3xl mx-auto mb-16">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#0EA5E9]/15 border border-[#0EA5E9]/35 text-[#38BDF8] text-xs font-bold uppercase tracking-wider mb-3">
@@ -154,14 +154,14 @@ export default function Contact({ preselectedService, preselectedProject }) {
 
         {/* 2-Column Contact Section */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-start">
-          
+
           {/* Left Column: Direct Communication & Expectation Cards */}
           <div className="lg:col-span-5 space-y-6">
             <div className="p-7 rounded-2xl bg-[#0B1B3A] border border-white/15">
               <h3 className="text-xl font-bold text-white font-display mb-5">
                 What Happens Next?
               </h3>
-              
+
               <div className="space-y-5 text-sm text-[#E2E8F0]">
                 <div className="flex items-start gap-3.5">
                   <div className="w-7 h-7 rounded-full bg-[#0EA5E9] text-white flex items-center justify-center shrink-0 mt-0.5 font-bold text-xs shadow-sm">
@@ -239,7 +239,7 @@ export default function Contact({ preselectedService, preselectedProject }) {
           {/* Right Column: High Contrast Accessible White Form Card */}
           <div className="lg:col-span-7">
             <div className="p-7 sm:p-9 rounded-2xl bg-white text-[#0B1B3A] border border-[#E2E8F0] shadow-2xl">
-              
+
               {isSubmitted ? (
                 <div className="py-12 px-4 text-center space-y-4 animate-in fade-in">
                   <div className="w-16 h-16 rounded-full bg-[#F0FDF4] border border-[#BBF7D0] text-[#16A34A] flex items-center justify-center mx-auto">
@@ -258,7 +258,7 @@ export default function Contact({ preselectedService, preselectedProject }) {
                 </div>
               ) : (
                 <form onSubmit={handleSubmit} className="space-y-5" noValidate>
-                  
+
                   {/* Row 1: Name & Email */}
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                     <div>
@@ -272,9 +272,8 @@ export default function Contact({ preselectedService, preselectedProject }) {
                         value={formData.fullName}
                         onChange={handleChange}
                         placeholder="e.g. Rahul Sharma"
-                        className={`w-full px-4 py-3 rounded-xl bg-white border text-sm text-[#0F172A] placeholder-[#64748B] focus:outline-none focus:ring-2 focus:ring-[#0284C7] focus:border-[#0284C7] transition-all font-medium ${
-                          errors.fullName ? 'border-rose-500' : 'border-[#CBD5E1]'
-                        }`}
+                        className={`w-full px-4 py-3 rounded-xl bg-white border text-sm text-[#0F172A] placeholder-[#64748B] focus:outline-none focus:ring-2 focus:ring-[#0284C7] focus:border-[#0284C7] transition-all font-medium ${errors.fullName ? 'border-rose-500' : 'border-[#CBD5E1]'
+                          }`}
                       />
                       {errors.fullName && (
                         <p className="mt-1 text-xs text-rose-600 flex items-center gap-1 font-semibold">
@@ -294,9 +293,8 @@ export default function Contact({ preselectedService, preselectedProject }) {
                         value={formData.email}
                         onChange={handleChange}
                         placeholder="e.g. rahul@company.com"
-                        className={`w-full px-4 py-3 rounded-xl bg-white border text-sm text-[#0F172A] placeholder-[#64748B] focus:outline-none focus:ring-2 focus:ring-[#0284C7] focus:border-[#0284C7] transition-all font-medium ${
-                          errors.email ? 'border-rose-500' : 'border-[#CBD5E1]'
-                        }`}
+                        className={`w-full px-4 py-3 rounded-xl bg-white border text-sm text-[#0F172A] placeholder-[#64748B] focus:outline-none focus:ring-2 focus:ring-[#0284C7] focus:border-[#0284C7] transition-all font-medium ${errors.email ? 'border-rose-500' : 'border-[#CBD5E1]'
+                          }`}
                       />
                       {errors.email && (
                         <p className="mt-1 text-xs text-rose-600 flex items-center gap-1 font-semibold">
@@ -392,9 +390,8 @@ export default function Contact({ preselectedService, preselectedProject }) {
                       value={formData.message}
                       onChange={handleChange}
                       placeholder="Tell us about the project, key features, target timeline, or existing systems you want to connect..."
-                      className={`w-full px-4 py-3 rounded-xl bg-white border text-sm text-[#0F172A] placeholder-[#64748B] focus:outline-none focus:ring-2 focus:ring-[#0284C7] focus:border-[#0284C7] transition-all resize-none font-medium ${
-                        errors.message ? 'border-rose-500' : 'border-[#CBD5E1]'
-                      }`}
+                      className={`w-full px-4 py-3 rounded-xl bg-white border text-sm text-[#0F172A] placeholder-[#64748B] focus:outline-none focus:ring-2 focus:ring-[#0284C7] focus:border-[#0284C7] transition-all resize-none font-medium ${errors.message ? 'border-rose-500' : 'border-[#CBD5E1]'
+                        }`}
                     />
                     {errors.message && (
                       <p className="mt-1 text-xs text-rose-600 flex items-center gap-1 font-semibold">
