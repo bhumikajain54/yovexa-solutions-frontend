@@ -1,14 +1,14 @@
 /**
  * Generic API Client with JWT Header attachment, URL Normalization & Response Unwrapping
  */
-const BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8081/api';
+const BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://yovexa-solutions-backend.vercel.app/api';
 
 /**
  * Normalizes URL and attaches JWT authentication headers
  */
 export async function apiRequest(endpoint, options = {}) {
   const token = localStorage.getItem('yovexa_auth_token');
-  
+
   const headers = {
     'Content-Type': 'application/json',
     ...(token ? { Authorization: `Bearer ${token}` } : {}),
@@ -90,31 +90,31 @@ export const api = {
   request: apiRequest,
   extractData,
   extractListData,
-  get: (endpoint, options = {}) => 
+  get: (endpoint, options = {}) =>
     apiRequest(endpoint, { ...options, method: 'GET' }),
-  
-  post: (endpoint, body, options = {}) => 
+
+  post: (endpoint, body, options = {}) =>
     apiRequest(endpoint, {
       ...options,
       method: 'POST',
       body: body instanceof FormData ? body : JSON.stringify(body),
     }),
 
-  put: (endpoint, body, options = {}) => 
+  put: (endpoint, body, options = {}) =>
     apiRequest(endpoint, {
       ...options,
       method: 'PUT',
       body: body instanceof FormData ? body : JSON.stringify(body),
     }),
 
-  patch: (endpoint, body, options = {}) => 
+  patch: (endpoint, body, options = {}) =>
     apiRequest(endpoint, {
       ...options,
       method: 'PATCH',
       body: body instanceof FormData ? body : JSON.stringify(body),
     }),
 
-  delete: (endpoint, options = {}) => 
+  delete: (endpoint, options = {}) =>
     apiRequest(endpoint, { ...options, method: 'DELETE' }),
 };
 
