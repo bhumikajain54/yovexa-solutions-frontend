@@ -51,7 +51,6 @@ export default function AdminSidebar({
     { label: 'Hero Section', path: '/admin/content/hero', icon: Sparkles },
     { label: 'About Section', path: '/admin/content/about', icon: Info },
     { label: 'Services', path: '/admin/services', icon: Briefcase },
-    { label: 'Process Steps', path: '/admin/process', icon: GitMerge },
     { label: 'Portfolio Projects', path: '/admin/projects', icon: Layers },
     { label: 'Contact Info', path: '/admin/content/contact', icon: Phone },
     { label: 'Footer Content', path: '/admin/content/footer', icon: LayoutTemplate },

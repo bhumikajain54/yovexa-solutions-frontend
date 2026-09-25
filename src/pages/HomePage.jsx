@@ -4,7 +4,6 @@ import Hero from '../components/Hero';
 import TrustStrip from '../components/TrustStrip';
 import About from '../components/About';
 import Services from '../components/Services';
-import Process from '../components/Process';
 import WhyYovexa from '../components/WhyYovexa';
 import Portfolio from '../components/Portfolio';
 import ProjectModal from '../components/ProjectModal';
@@ -50,7 +49,6 @@ export default function HomePage() {
         <TrustStrip />
         <About />
         <Services onSelectService={handleSelectService} />
-        <Process />
         <WhyYovexa />
         <Portfolio onSelectProject={setSelectedProject} />
         <Contact 

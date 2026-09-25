@@ -20,7 +20,6 @@ export default function AdminLayout() {
     if (path.startsWith('/admin/content/about/edit')) return 'Edit About Section';
     if (path.startsWith('/admin/content/about/')) return 'About Section Details';
     if (path === '/admin/services') return 'Services Management';
-    if (path === '/admin/process') return 'Process Steps Management';
     if (path === '/admin/projects') return 'Portfolio Projects Management';
     if (path === '/admin/projects/create') return 'Create Portfolio Project';
     if (path.startsWith('/admin/projects/edit')) return 'Edit Portfolio Project';

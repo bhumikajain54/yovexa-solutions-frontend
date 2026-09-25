@@ -34,7 +34,6 @@ import AdminViewAboutPage from './pages/admin/AdminViewAboutPage';
 
 // Other Admin Pages
 import AdminServicesPage from './pages/admin/AdminServicesPage';
-import AdminProcessPage from './pages/admin/AdminProcessPage';
 import AdminProjectsPage from './pages/admin/AdminProjectsPage';
 import AdminCreateProjectPage from './pages/admin/AdminCreateProjectPage';
 import AdminEditProjectPage from './pages/admin/AdminEditProjectPage';
@@ -87,7 +86,6 @@ export default function App() {
 
               {/* Other CMS Sections */}
               <Route path="services" element={<AdminServicesPage />} />
-              <Route path="process" element={<AdminProcessPage />} />
               <Route path="projects" element={<AdminProjectsPage />} />
               <Route path="projects/create" element={<AdminCreateProjectPage />} />
               <Route path="projects/edit/:id" element={<AdminEditProjectPage />} />
