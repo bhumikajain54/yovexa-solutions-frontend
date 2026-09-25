@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowRight, Lightbulb, Compass, Code, Rocket, Check, Sparkles } from 'lucide-react';
+import { ArrowRight, Check, Sparkles } from 'lucide-react';
 import { contentService } from '../services/contentService';
 
 export default function About() {
-  const [activeStage, setActiveStage] = useState(0);
   const [about, setAbout] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -24,36 +23,6 @@ export default function About() {
     return () => { isMounted = false; };
   }, []);
 
-  const stages = [
-    {
-      name: "Idea",
-      icon: Lightbulb,
-      title: "Discovery & Strategy",
-      desc: "Deconstruct your business challenge, analyze technical workflows, and craft a clear product roadmap.",
-      deliverable: "Product Blueprint & Scope"
-    },
-    {
-      name: "Design",
-      icon: Compass,
-      title: "UI/UX & Architecture",
-      desc: "Create responsive prototypes, user journeys, design systems, and robust database architecture schemas.",
-      deliverable: "Clickable Prototypes & Specs"
-    },
-    {
-      name: "Development",
-      icon: Code,
-      title: "Clean Modular Code",
-      desc: "Engineer scalable web and mobile software with modern frameworks, secure APIs, and automated quality checks.",
-      deliverable: "Tested Production Codebase"
-    },
-    {
-      name: "Launch",
-      icon: Rocket,
-      title: "Deployment & Scaling",
-      desc: "Deploy securely to cloud environments, optimize performance benchmarks, and provide ongoing refinement.",
-      deliverable: "Live Product & Documentation"
-    }
-  ];
 
   const scrollTo = (target) => {
     const id = target?.replace('#', '') || 'contact';
@@ -171,74 +140,35 @@ export default function About() {
             </div>
           </div>
 
-          {/* Right Column: Interactive Lifecycle Card */}
+          {/* Right Column: Modern Tech Visual Showcase */}
           <div className="lg:col-span-6">
-            <div className="bg-white rounded-2xl border border-[#E2E8F0] p-6 sm:p-8 shadow-card">
+            <div className="relative group">
+              {/* Subtle ambient glow behind image */}
+              <div className="absolute -inset-1.5 bg-gradient-to-r from-[#0284C7]/20 via-[#0EA5E9]/15 to-[#38BDF8]/25 rounded-3xl blur-xl opacity-75 group-hover:opacity-100 transition-opacity duration-500" />
               
-              <div className="flex items-center justify-between pb-6 border-b border-[#E2E8F0] mb-6">
-                <div>
-                  <span className="text-xs font-bold text-[#0284C7] uppercase tracking-widest">Product Lifecycle</span>
-                  <h3 className="text-xl font-bold text-[#0B1B3A] mt-1 font-display">From Concept to Deployment</h3>
-                </div>
-                <div className="text-xs font-mono px-2.5 py-1 bg-[#F1F5F9] text-[#334155] rounded-md font-bold border border-[#E2E8F0]">
-                  4 Iterative Stages
-                </div>
-              </div>
+              <div className="relative rounded-2xl overflow-hidden border border-[#E2E8F0] bg-white shadow-card">
+                <img
+                  src={about.image || "/about-visual.jpg"}
+                  alt={about.imageAlt || about.title || "Enterprise Cloud Architecture & Digital Product Engineering"}
+                  className="w-full h-auto object-cover transform transition-transform duration-700 group-hover:scale-[1.02]"
+                  loading="lazy"
+                />
 
-              {/* Stage Selector Tabs */}
-              <div className="grid grid-cols-4 gap-2 mb-6">
-                {stages.map((stage, idx) => {
-                  const Icon = stage.icon;
-                  const isActive = activeStage === idx;
-                  return (
-                    <button
-                      key={stage.name}
-                      onClick={() => setActiveStage(idx)}
-                      className={`flex flex-col items-center p-3 rounded-xl text-center transition-all duration-200 ${
-                        isActive
-                          ? 'bg-[#0B1B3A] text-white shadow-sm ring-2 ring-[#0EA5E9]'
-                          : 'bg-[#F1F5F9] text-[#334155] hover:bg-[#E2E8F0] hover:text-[#0B1B3A] border border-[#E2E8F0]'
-                      }`}
-                    >
-                      <Icon className={`w-5 h-5 mb-1.5 ${isActive ? 'text-[#38BDF8]' : 'text-[#334155]'}`} />
-                      <span className="text-xs font-bold">{stage.name}</span>
-                    </button>
-                  );
-                })}
-              </div>
-
-              {/* Active Stage Detail Panel */}
-              <div className="bg-[#F8FAFC] rounded-xl p-5 border border-[#E2E8F0]">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-xs font-mono font-bold text-[#0369A1] bg-[#E0F2FE] px-2.5 py-0.5 rounded border border-[#BAE6FD]">
-                    Stage 0{activeStage + 1}
-                  </span>
-                  <span className="text-xs text-[#64748B] font-medium">
-                    Deliverable: <strong className="text-[#0B1B3A]">{stages[activeStage].deliverable}</strong>
+                {/* Bottom glassmorphic highlight strip */}
+                <div className="p-4 sm:p-5 bg-white/95 backdrop-blur-md border-t border-[#E2E8F0] flex items-center justify-between gap-4">
+                  <div>
+                    <span className="text-[11px] font-bold text-[#0284C7] uppercase tracking-wider block">
+                      {about.imageCategory || "Enterprise Technology"}
+                    </span>
+                    <h5 className="text-sm font-bold text-[#0B1B3A] mt-0.5">
+                      {about.imageTitle || "Cloud Architecture & Digital Solutions"}
+                    </h5>
+                  </div>
+                  <span className="shrink-0 px-3 py-1 rounded-full bg-[#E0F2FE] text-[#0369A1] text-xs font-mono font-bold border border-[#BAE6FD]">
+                    {about.imageBadge || "Production-Ready"}
                   </span>
                 </div>
-
-                <h4 className="text-lg font-bold text-[#0B1B3A] mt-2 font-display">
-                  {stages[activeStage].title}
-                </h4>
-
-                <p className="text-sm text-[#334155] mt-2 leading-relaxed font-normal">
-                  {stages[activeStage].desc}
-                </p>
-
-                {/* Progress Indicator */}
-                <div className="mt-5 pt-4 border-t border-[#E2E8F0] flex items-center gap-2">
-                  {[0, 1, 2, 3].map((i) => (
-                    <div
-                      key={i}
-                      className={`h-1.5 flex-1 rounded-full transition-all duration-200 ${
-                        i <= activeStage ? 'bg-[#0EA5E9]' : 'bg-[#E2E8F0]'
-                      }`}
-                    />
-                  ))}
-                </div>
               </div>
-
             </div>
           </div>
 

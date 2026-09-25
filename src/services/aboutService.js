@@ -21,6 +21,11 @@ function normalizeAbout(a) {
     secondaryButtonLabel: a.secondaryCtaText || a.secondaryButtonLabel || '',
     secondaryCtaLink: a.secondaryCtaLink || a.secondaryButtonLink || '',
     secondaryButtonLink: a.secondaryCtaLink || a.secondaryButtonLink || '',
+    image: a.image || '',
+    imageAlt: a.imageAlt || '',
+    imageCategory: a.imageCategory || '',
+    imageTitle: a.imageTitle || '',
+    imageBadge: a.imageBadge || '',
     highlights: Array.isArray(a.highlights) ? a.highlights : [],
   };
 }
@@ -75,6 +80,11 @@ export const aboutService = {
       primaryButtonLink: data.primaryCtaLink || data.primaryButtonLink,
       secondaryButtonLabel: data.secondaryCtaText || data.secondaryButtonLabel,
       secondaryButtonLink: data.secondaryCtaLink || data.secondaryButtonLink,
+      image: data.image || '',
+      imageAlt: data.imageAlt || '',
+      imageCategory: data.imageCategory || '',
+      imageTitle: data.imageTitle || '',
+      imageBadge: data.imageBadge || '',
       highlights: Array.isArray(data.highlights) ? data.highlights : [],
       status: data.status || 'DRAFT',
       isActive: Boolean(data.isActive),
@@ -97,6 +107,11 @@ export const aboutService = {
       primaryButtonLink: data.primaryCtaLink || data.primaryButtonLink,
       secondaryButtonLabel: data.secondaryCtaText || data.secondaryButtonLabel,
       secondaryButtonLink: data.secondaryCtaLink || data.secondaryButtonLink,
+      image: data.image || '',
+      imageAlt: data.imageAlt || '',
+      imageCategory: data.imageCategory || '',
+      imageTitle: data.imageTitle || '',
+      imageBadge: data.imageBadge || '',
       highlights: Array.isArray(data.highlights) ? data.highlights : [],
     };
 

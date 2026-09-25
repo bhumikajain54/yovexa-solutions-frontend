@@ -21,6 +21,9 @@ export default function AdminAboutContentPage() {
     secondaryCtaLink: '',
     image: '',
     imageAlt: '',
+    imageCategory: '',
+    imageTitle: '',
+    imageBadge: '',
     highlights: [],
     isVisible: true,
   });
@@ -389,6 +392,51 @@ export default function AdminAboutContentPage() {
                 value={formData.imageAlt}
                 onChange={handleChange}
                 placeholder="e.g. Yovexa Engineering Team"
+                className="w-full px-3 py-2 rounded-lg border border-[#CBD5E1] text-xs text-[#0F172A]"
+              />
+            </div>
+
+            <div>
+              <label htmlFor="imageCategory" className="block text-xs font-bold text-[#334155] mb-1">
+                Image Category / Kicker
+              </label>
+              <input
+                type="text"
+                id="imageCategory"
+                name="imageCategory"
+                value={formData.imageCategory || ''}
+                onChange={handleChange}
+                placeholder="e.g. Enterprise Technology"
+                className="w-full px-3 py-2 rounded-lg border border-[#CBD5E1] text-xs text-[#0F172A]"
+              />
+            </div>
+
+            <div>
+              <label htmlFor="imageTitle" className="block text-xs font-bold text-[#334155] mb-1">
+                Image Headline / Caption Title
+              </label>
+              <input
+                type="text"
+                id="imageTitle"
+                name="imageTitle"
+                value={formData.imageTitle || ''}
+                onChange={handleChange}
+                placeholder="e.g. Cloud Architecture & Digital Solutions"
+                className="w-full px-3 py-2 rounded-lg border border-[#CBD5E1] text-xs font-semibold text-[#0F172A]"
+              />
+            </div>
+
+            <div>
+              <label htmlFor="imageBadge" className="block text-xs font-bold text-[#334155] mb-1">
+                Image Status Badge
+              </label>
+              <input
+                type="text"
+                id="imageBadge"
+                name="imageBadge"
+                value={formData.imageBadge || ''}
+                onChange={handleChange}
+                placeholder="e.g. Production-Ready"
                 className="w-full px-3 py-2 rounded-lg border border-[#CBD5E1] text-xs text-[#0F172A]"
               />
             </div>
