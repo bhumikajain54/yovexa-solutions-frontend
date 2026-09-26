@@ -69,7 +69,10 @@ export async function apiRequest(endpoint, options = {}) {
  */
 export function extractData(res, fallback = null) {
   if (res === null || res === undefined) return fallback;
-  if (res.data !== undefined) return res.data;
+  if (res && typeof res === 'object' && 'success' in res) {
+    return res.data !== undefined && res.data !== null ? res.data : fallback;
+  }
+  if (res.data !== undefined) return res.data !== null ? res.data : fallback;
   return res;
 }
 

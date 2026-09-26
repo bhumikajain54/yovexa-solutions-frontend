@@ -10,6 +10,7 @@ export const COMPANY_INFO = {
     { label: "About", href: "/#about" },
     { label: "Services", href: "/#services" },
     { label: "Portfolio", href: "/#portfolio" },
+    { label: "Case Studies", href: "/case-studies" },
     { label: "Blog", href: "/blog" },
     { label: "Contact", href: "/#contact" },
   ],
@@ -21,16 +22,13 @@ export const COMPANY_INFO = {
     { label: "About", href: "/#about" },
     { label: "Services", href: "/#services" },
     { label: "Portfolio", href: "/#portfolio" },
+    { label: "Case Studies", href: "/case-studies" },
     { label: "Blog", href: "/blog" },
     { label: "Contact", href: "/#contact" },
   ],
 
-  footerServices: [
-    { label: "Web Development", href: "#services" },
-    { label: "Mobile App Development", href: "#services" },
-    { label: "Custom Software", href: "#services" },
-    { label: "UI/UX Design", href: "#services" },
-    { label: "API & Backend Development", href: "#services" },
-    { label: "Business Automation", href: "#services" },
-  ]
+  // Services are NOT hardcoded here.
+  // They are fetched dynamically from the backend Services API (/api/services)
+  // via servicesService and consumed directly by Footer.jsx and Contact.jsx.
+  footerServices: []
 };

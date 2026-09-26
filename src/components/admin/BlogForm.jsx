@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Save, ArrowLeft, Globe, Eye, Sparkles, AlertCircle } from 'lucide-react';
 import BlogEditor from './BlogEditor';
 import ImageUploader from './ImageUploader';
-import { generateSlug } from '../../services/blogService';
+import { blogService, generateSlug } from '../../services/blogService';
 
 export default function BlogForm({ initialData = null, onSubmit, onCancel, loading = false, isSubmitting = false }) {
   const navigate = useNavigate();
@@ -16,7 +16,7 @@ export default function BlogForm({ initialData = null, onSubmit, onCancel, loadi
     excerpt: '',
     content: '',
     featuredImage: '',
-    category: 'Web Development',
+    category: '',
     author: 'Yovexa Solutions',
     tags: '',
     status: 'DRAFT',
@@ -25,8 +25,28 @@ export default function BlogForm({ initialData = null, onSubmit, onCancel, loadi
     seoDescription: '',
   });
 
+  const [categories, setCategories] = useState([]);
   const [errors, setErrors] = useState({});
   const [isSlugManual, setIsSlugManual] = useState(false);
+
+  useEffect(() => {
+    let isMounted = true;
+    blogService.getCategories()
+      .then(cats => {
+        if (isMounted && Array.isArray(cats)) {
+          const filtered = cats.filter(c => c.id !== 'all');
+          setCategories(filtered);
+          if (!initialData && filtered.length > 0) {
+            setFormData(prev => ({
+              ...prev,
+              category: prev.category || filtered[0].id
+            }));
+          }
+        }
+      })
+      .catch(err => console.error('Failed to load blog categories in BlogForm:', err));
+    return () => { isMounted = false; };
+  }, [initialData]);
 
   useEffect(() => {
     if (initialData) {
@@ -36,7 +56,12 @@ export default function BlogForm({ initialData = null, onSubmit, onCancel, loadi
         excerpt: initialData.excerpt || '',
         content: initialData.content || '',
         featuredImage: initialData.featuredImage || '',
-        category: initialData.category || 'Web Development',
+        category: (function(cat) {
+          if (!cat) return 'WEB_APPLICATIONS';
+          const upper = cat.toUpperCase();
+          const map = { 'WEB': 'WEB_APPLICATIONS', 'MOBILE': 'MOBILE_APPS', 'ECOMMERCE': 'E_COMMERCE' };
+          return map[upper] || upper;
+        })(initialData.category),
         author: initialData.author || 'Yovexa Solutions',
         tags: Array.isArray(initialData.tags) ? initialData.tags.join(', ') : initialData.tags || '',
         status: initialData.status || 'PUBLISHED',
@@ -100,16 +125,6 @@ export default function BlogForm({ initialData = null, onSubmit, onCancel, loadi
     }
     onSubmit(formData);
   };
-
-  const categories = [
-    'Web Development',
-    'Mobile App Development',
-    'Custom Software',
-    'Business Automation',
-    'UI/UX Design',
-    'API & Backend',
-    'Tech Trends'
-  ];
 
   return (
     <form onSubmit={handleSubmit} className="space-y-8" noValidate>
@@ -363,8 +378,8 @@ export default function BlogForm({ initialData = null, onSubmit, onCancel, loadi
                 className="w-full px-4 py-2.5 rounded-xl border border-[#CBD5E1] text-xs font-semibold text-[#0B1B3A] focus:outline-none focus:ring-2 focus:ring-[#0EA5E9]"
               >
                 {categories.map((c) => (
-                  <option key={c} value={c}>
-                    {c}
+                  <option key={c.id} value={c.id}>
+                    {c.label}
                   </option>
                 ))}
               </select>

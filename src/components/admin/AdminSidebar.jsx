@@ -16,7 +16,8 @@ import {
   Briefcase,
   GitMerge,
   Phone,
-  LayoutTemplate
+  LayoutTemplate,
+  BookOpen
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
@@ -37,7 +38,8 @@ export default function AdminSidebar({
   const isContentActive = location.pathname.startsWith('/admin/content') || 
                           location.pathname.startsWith('/admin/services') || 
                           location.pathname.startsWith('/admin/process') || 
-                          location.pathname.startsWith('/admin/projects');
+                          location.pathname.startsWith('/admin/projects') ||
+                          location.pathname.startsWith('/admin/case-studies');
 
   const [contentMenuOpen, setContentMenuOpen] = useState(true);
 
@@ -52,6 +54,7 @@ export default function AdminSidebar({
     { label: 'About Section', path: '/admin/content/about', icon: Info },
     { label: 'Services', path: '/admin/services', icon: Briefcase },
     { label: 'Portfolio Projects', path: '/admin/projects', icon: Layers },
+    { label: 'Case Studies', path: '/admin/case-studies', icon: BookOpen },
     { label: 'Contact Info', path: '/admin/content/contact', icon: Phone },
     { label: 'Footer Content', path: '/admin/content/footer', icon: LayoutTemplate },
   ];

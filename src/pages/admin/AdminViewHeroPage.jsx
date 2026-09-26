@@ -158,22 +158,28 @@ export default function AdminViewHeroPage() {
         {/* Left: Preview & Content (8 cols) */}
         <div className="lg:col-span-8 space-y-6">
           {/* Live Mockup / Card Preview */}
-          <div className="bg-[#081A33] text-white p-8 rounded-2xl border border-white/10 shadow-xl space-y-6 tech-grid-dark relative overflow-hidden">
+          <div className="bg-white text-[#0B1B3A] p-8 rounded-2xl border border-[#E2E8F0] shadow-card space-y-6 tech-grid-bg relative overflow-hidden">
             <div className="relative z-10 space-y-4">
-              <span className="inline-block px-3 py-1 rounded-full bg-[#0EA5E9]/20 text-[#38BDF8] text-xs font-mono font-bold border border-[#0EA5E9]/40">
-                {hero.badge || 'No Eyebrow'}
-              </span>
-
-              <h2 className="text-3xl sm:text-4xl font-black font-display tracking-tight text-white leading-tight">
-                {hero.heading}{' '}
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#38BDF8] to-[#818CF8]">
-                  {hero.highlightedText}
+              {hero.badge && (
+                <span className="inline-block px-3 py-1 rounded-full bg-[#E0F2FE] text-[#0369A1] text-xs font-mono font-bold border border-[#BAE6FD]">
+                  {hero.badge}
                 </span>
+              )}
+
+              <h2 className="text-3xl sm:text-4xl font-black font-display tracking-tight text-[#0B1B3A] leading-tight">
+                {hero.heading}{' '}
+                {hero.highlightedText && (
+                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#0284C7] to-[#0EA5E9]">
+                    {hero.highlightedText}
+                  </span>
+                )}
               </h2>
 
-              <p className="text-sm sm:text-base text-[#CBD5E1] leading-relaxed max-w-2xl font-normal">
-                {hero.description}
-              </p>
+              {hero.description && (
+                <p className="text-sm sm:text-base text-[#334155] leading-relaxed max-w-2xl font-normal">
+                  {hero.description}
+                </p>
+              )}
 
               <div className="pt-2 flex flex-wrap gap-4">
                 {hero.primaryCtaText && (
@@ -182,7 +188,7 @@ export default function AdminViewHeroPage() {
                   </div>
                 )}
                 {hero.secondaryCtaText && (
-                  <div className="px-5 py-2.5 rounded-xl bg-white/10 border border-white/20 text-white text-xs font-bold">
+                  <div className="px-5 py-2.5 rounded-xl bg-[#F8FAFC] border border-[#CBD5E1] text-[#0B1B3A] text-xs font-bold">
                     {hero.secondaryCtaText} ({hero.secondaryCtaLink || '#services'})
                   </div>
                 )}

@@ -1,10 +1,19 @@
 import { api, extractData, extractListData } from './api';
-import { PROJECT_CATEGORIES } from '../data/projects';
 import { generateSlug } from './blogService';
 
 export const projectService = {
   async getCategories() {
-    return PROJECT_CATEGORIES;
+    try {
+      const res = await api.get('/projects/categories');
+      const data = extractData(res);
+      if (Array.isArray(data)) {
+        return data;
+      }
+      return [];
+    } catch (err) {
+      console.warn('Failed to fetch categories from backend:', err);
+      return [];
+    }
   },
 
   async getProjects({ category = 'all', publishedOnly = false, search = '' } = {}) {
@@ -63,14 +72,16 @@ export const projectService = {
       title,
       projectName: title,
       slug,
+      subtitle: projectData.subtitle || '',
+      clientLabel: projectData.clientLabel || '',
       shortDescription: projectData.shortDescription || projectData.summary || '',
       summary: projectData.shortDescription || projectData.summary || '',
-      description: projectData.description || projectData.solution || projectData.fullDescription || '',
-      solution: projectData.description || projectData.solution || projectData.fullDescription || '',
+      description: projectData.description || projectData.solution || projectData.fullDescription || projectData.shortDescription || projectData.summary || '',
+      solution: projectData.description || projectData.solution || projectData.fullDescription || projectData.shortDescription || projectData.summary || '',
       category: projectData.category || 'WEB_APPLICATIONS',
       projectType: projectData.projectType || 'Web Application',
-      featuredImage: projectData.featuredImage || '',
-      galleryImages: Array.isArray(projectData.galleryImages) ? projectData.galleryImages : [],
+      featuredImage: projectData.featuredImage || projectData.thumbnailUrl || projectData.image || '',
+      thumbnailUrl: projectData.featuredImage || projectData.thumbnailUrl || projectData.image || '',
       technologies: Array.isArray(projectData.technologies)
         ? projectData.technologies
         : typeof projectData.technologies === 'string'
@@ -99,14 +110,16 @@ export const projectService = {
       title,
       projectName: title,
       slug,
+      subtitle: projectData.subtitle || '',
+      clientLabel: projectData.clientLabel || '',
       shortDescription: projectData.shortDescription || projectData.summary || '',
       summary: projectData.shortDescription || projectData.summary || '',
-      description: projectData.description || projectData.solution || projectData.fullDescription || '',
-      solution: projectData.description || projectData.solution || projectData.fullDescription || '',
+      description: projectData.description || projectData.solution || projectData.fullDescription || projectData.shortDescription || projectData.summary || '',
+      solution: projectData.description || projectData.solution || projectData.fullDescription || projectData.shortDescription || projectData.summary || '',
       category: projectData.category,
       projectType: projectData.projectType,
-      featuredImage: projectData.featuredImage,
-      galleryImages: Array.isArray(projectData.galleryImages) ? projectData.galleryImages : [],
+      featuredImage: projectData.featuredImage || projectData.thumbnailUrl || projectData.image,
+      thumbnailUrl: projectData.featuredImage || projectData.thumbnailUrl || projectData.image,
       technologies: Array.isArray(projectData.technologies)
         ? projectData.technologies
         : typeof projectData.technologies === 'string'

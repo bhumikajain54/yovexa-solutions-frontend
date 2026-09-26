@@ -11,21 +11,13 @@ import {
   Loader2,
   RefreshCw,
   X,
-  Save,
-  Globe,
-  Code2,
-  Smartphone,
-  Layout,
-  Server,
-  Cpu,
-  Layers,
-  Shield,
-  Zap
+  Save
 } from 'lucide-react';
 import { servicesService } from '../../services/servicesService';
 import { useToast } from '../../context/ToastContext';
 import DeleteModal from '../../components/admin/DeleteModal';
 import { generateSlug } from '../../services/blogService';
+import DynamicIcon from '../../components/DynamicIcon';
 
 export default function AdminServicesPage() {
   const { showToast } = useToast();
@@ -171,15 +163,13 @@ export default function AdminServicesPage() {
   };
 
   const iconOptions = [
-    { name: 'Globe', label: 'Web / Globe' },
-    { name: 'Code2', label: 'Custom Software' },
-    { name: 'Smartphone', label: 'Mobile Apps' },
-    { name: 'Layout', label: 'UI / UX Design' },
-    { name: 'Server', label: 'API & Backend' },
-    { name: 'Cpu', label: 'Automation / Hardware' },
-    { name: 'Layers', label: 'Architecture' },
-    { name: 'Shield', label: 'Security' },
-    { name: 'Zap', label: 'Performance' },
+    { name: 'Globe', label: 'Web & Global (Globe)' },
+    { name: 'Smartphone', label: 'Mobile Apps (Smartphone)' },
+    { name: 'Code2', label: 'Custom Software (Code)' },
+    { name: 'Store', label: 'E-Commerce (Store)' },
+    { name: 'ShoppingBag', label: 'E-Commerce (Shopping Bag)' },
+    { name: 'ShoppingCart', label: 'E-Commerce (Cart)' },
+    { name: 'Server', label: 'API & Backend (Server)' },
   ];
 
   return (
@@ -279,18 +269,23 @@ export default function AdminServicesPage() {
 
                     {/* Title & Short Description */}
                     <td className="py-4 px-4 sm:px-6">
-                      <div className="max-w-md">
-                        <div className="flex items-center gap-2 font-bold text-[#0B1B3A] text-sm">
-                          <span>{srv.title}</span>
-                          {srv.popularTag && (
-                            <span className="text-[10px] uppercase font-extrabold px-2 py-0.5 rounded bg-[#E0F2FE] text-[#0369A1] border border-[#BAE6FD]">
-                              {srv.popularTag}
-                            </span>
-                          )}
+                      <div className="flex items-start gap-3">
+                        <div className="w-8 h-8 rounded-lg bg-[#E0F2FE] border border-[#BAE6FD] text-[#0284C7] flex items-center justify-center shrink-0 mt-0.5">
+                          <DynamicIcon name={srv.icon || 'Globe'} className="w-4 h-4" />
                         </div>
-                        <p className="text-xs text-[#64748B] line-clamp-2 mt-1 leading-relaxed">
-                          {srv.shortDescription}
-                        </p>
+                        <div className="max-w-md">
+                          <div className="flex items-center gap-2 font-bold text-[#0B1B3A] text-sm">
+                            <span>{srv.title}</span>
+                            {srv.popularTag && (
+                              <span className="text-[10px] uppercase font-extrabold px-2 py-0.5 rounded bg-[#E0F2FE] text-[#0369A1] border border-[#BAE6FD]">
+                                {srv.popularTag}
+                              </span>
+                            )}
+                          </div>
+                          <p className="text-xs text-[#64748B] line-clamp-2 mt-1 leading-relaxed">
+                            {srv.shortDescription}
+                          </p>
+                        </div>
                       </div>
                     </td>
 
@@ -404,15 +399,20 @@ export default function AdminServicesPage() {
                   <label className="block text-xs font-extrabold text-[#0B1B3A] mb-1">
                     Icon Identifier
                   </label>
-                  <select
-                    value={form.icon}
-                    onChange={(e) => setForm({ ...form, icon: e.target.value })}
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-[#CBD5E1] text-xs font-semibold text-[#0B1B3A]"
-                  >
-                    {iconOptions.map(opt => (
-                      <option key={opt.name} value={opt.name}>{opt.label} ({opt.name})</option>
-                    ))}
-                  </select>
+                  <div className="flex items-center gap-2.5">
+                    <div className="w-10 h-10 rounded-xl bg-[#0B1B3A] text-[#38BDF8] flex items-center justify-center shrink-0 shadow-sm border border-[#0B1B3A]">
+                      <DynamicIcon name={form.icon || 'Globe'} className="w-5 h-5" />
+                    </div>
+                    <select
+                      value={form.icon}
+                      onChange={(e) => setForm({ ...form, icon: e.target.value })}
+                      className="w-full px-3.5 py-2.5 rounded-xl border border-[#CBD5E1] text-xs font-semibold text-[#0B1B3A] focus:outline-none focus:ring-2 focus:ring-[#0EA5E9]"
+                    >
+                      {iconOptions.map(opt => (
+                        <option key={opt.name} value={opt.name}>{opt.label}</option>
+                      ))}
+                    </select>
+                  </div>
                 </div>
 
                 <div>

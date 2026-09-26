@@ -1,23 +1,17 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, Link, useNavigate } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
 import {
   ArrowLeft,
   ExternalLink,
   Check,
   Sparkles,
-  Layers,
-  ArrowRight,
-  Shield,
-  Activity,
-  Boxes,
-  Navigation,
   BookOpen,
-  ShoppingBag,
-  CreditCard
+  Layers,
+  ArrowRight
 } from 'lucide-react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
-import { projectService } from '../services/projectService';
+import { caseStudyService } from '../services/caseStudyService';
 
 function GithubIcon({ className = "w-3.5 h-3.5" }) {
   return (
@@ -27,14 +21,13 @@ function GithubIcon({ className = "w-3.5 h-3.5" }) {
   );
 }
 
-export default function ProjectDetailPage() {
+export default function CaseStudyDetailPage() {
   const { slug } = useParams();
-  const navigate = useNavigate();
 
-  const [project, setProject] = useState(null);
+  const [caseStudy, setCaseStudy] = useState(null);
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
-  const [relatedProjects, setRelatedProjects] = useState([]);
+  const [relatedStudies, setRelatedStudies] = useState([]);
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -42,21 +35,21 @@ export default function ProjectDetailPage() {
 
   useEffect(() => {
     let isMounted = true;
-    const fetchProject = async () => {
+    const fetchCaseStudy = async () => {
       try {
         setLoading(true);
         setNotFound(false);
-        const data = await projectService.getProjectBySlug(slug);
+        const data = await caseStudyService.getCaseStudyBySlug(slug);
         if (!isMounted) return;
-        setProject(data);
+        setCaseStudy(data);
 
         // Update document title for SEO
-        document.title = `${data.title || data.projectName} - Project | Yovexa Solutions`;
+        document.title = `${data.title} - Technical Case Study | Yovexa Solutions`;
 
-        // Fetch related projects
-        const allPublished = await projectService.getProjects({ publishedOnly: true });
-        const related = allPublished.filter(p => p.id !== data.id && p.slug !== data.slug).slice(0, 2);
-        if (isMounted) setRelatedProjects(related);
+        // Fetch related studies
+        const allPublished = await caseStudyService.getCaseStudies({ publishedOnly: true });
+        const related = allPublished.filter(cs => cs.id !== data.id && cs.slug !== data.slug).slice(0, 2);
+        if (isMounted) setRelatedStudies(related);
       } catch (err) {
         if (isMounted) setNotFound(true);
       } finally {
@@ -64,7 +57,7 @@ export default function ProjectDetailPage() {
       }
     };
 
-    fetchProject();
+    fetchCaseStudy();
 
     return () => {
       isMounted = false;
@@ -79,16 +72,16 @@ export default function ProjectDetailPage() {
         <main className="flex-1 flex items-center justify-center py-32 px-4 text-center">
           <div className="max-w-md mx-auto space-y-4">
             <h1 className="text-4xl font-extrabold text-[#0B1B3A] font-display">404</h1>
-            <h2 className="text-xl font-bold text-[#0B1B3A]">Project Not Found</h2>
+            <h2 className="text-xl font-bold text-[#0B1B3A]">Case Study Not Found</h2>
             <p className="text-sm text-[#475569]">
-              The project you are looking for might have been moved, removed, or is currently in draft state.
+              The technical case study you are looking for might have been moved, removed, or is currently in draft state.
             </p>
             <Link
-              to="/#portfolio"
+              to="/case-studies"
               className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-[#0B1B3A] text-white text-xs font-bold hover:bg-[#183B75] transition-colors"
             >
               <ArrowLeft className="w-4 h-4" />
-              <span>Back to Portfolio</span>
+              <span>Back to Case Studies</span>
             </Link>
           </div>
         </main>
@@ -97,7 +90,7 @@ export default function ProjectDetailPage() {
     );
   }
 
-  if (loading || !project) {
+  if (loading || !caseStudy) {
     return (
       <div className="min-h-screen flex flex-col bg-[#F8FAFC]">
         <Navbar />
@@ -115,51 +108,64 @@ export default function ProjectDetailPage() {
     );
   }
 
+  const featuresList = Array.isArray(caseStudy.features)
+    ? caseStudy.features
+    : (typeof caseStudy.features === 'string' ? caseStudy.features.split('\n').filter(Boolean) : []);
+
+  const techList = Array.isArray(caseStudy.technologies)
+    ? caseStudy.technologies
+    : (typeof caseStudy.technologies === 'string' ? caseStudy.technologies.split(',').map(s => s.trim()).filter(Boolean) : []);
+
   return (
     <div className="min-h-screen flex flex-col bg-[#F8FAFC] text-[#0B1B3A] font-sans">
       <Navbar />
 
       <main className="flex-1 pt-28 pb-24">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          {/* Top Breadcrumbs & Back link */}
+          {/* Top Breadcrumb */}
           <div className="mb-6">
             <Link
-              to="/#portfolio"
+              to="/case-studies"
               className="inline-flex items-center gap-1.5 text-xs font-bold text-[#0EA5E9] hover:text-[#0284C7] transition-colors"
             >
               <ArrowLeft className="w-4 h-4" />
-              <span>Back to Portfolio</span>
+              <span>Back to Case Studies</span>
             </Link>
           </div>
 
           {/* Header Badges */}
           <div className="flex flex-wrap items-center gap-2.5 mb-3">
             <span className="px-3 py-1 rounded-md text-xs font-bold uppercase tracking-wider bg-[#E0F2FE] text-[#0369A1] border border-[#BAE6FD]">
-              {project.category}
+              {caseStudy.category ? caseStudy.category.replace(/_/g, ' ') : 'Case Study'}
             </span>
-            {project.clientLabel && (
+            {caseStudy.clientLabel && (
               <span className="px-2.5 py-1 rounded-md text-xs font-semibold bg-[#F1F5F9] text-[#475569] border border-[#CBD5E1]">
-                {project.clientLabel}
+                {caseStudy.clientLabel}
+              </span>
+            )}
+            {caseStudy.projectReference && (
+              <span className="px-2.5 py-1 rounded-md text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                Project: {caseStudy.projectReference}
               </span>
             )}
           </div>
 
           {/* Title & Subtitle */}
           <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-[#0B1B3A] tracking-tight font-display leading-tight">
-            {project.title || project.projectName}
+            {caseStudy.title}
           </h1>
-          {project.subtitle && (
+          {caseStudy.subtitle && (
             <p className="mt-2 text-base sm:text-lg text-[#0284C7] font-semibold">
-              {project.subtitle}
+              {caseStudy.subtitle}
             </p>
           )}
 
-          {/* Featured Hero Thumbnail */}
-          {project.featuredImage && (
+          {/* Featured Hero Thumbnail / Architecture Diagram */}
+          {caseStudy.featuredImage && (
             <div className="my-8 rounded-2xl overflow-hidden border border-[#E2E8F0] shadow-md bg-slate-100 max-h-[460px]">
               <img
-                src={project.featuredImage}
-                alt={project.title}
+                src={caseStudy.featuredImage}
+                alt={caseStudy.title}
                 className="w-full h-full object-cover"
                 onError={(e) => {
                   e.currentTarget.style.display = 'none';
@@ -168,80 +174,103 @@ export default function ProjectDetailPage() {
             </div>
           )}
 
-          {/* High-level Summary */}
+          {/* Executive Briefing / Architecture Overview */}
           <div className="p-6 rounded-2xl bg-white text-[#0B1B3A] border border-[#E2E8F0] shadow-card mb-10">
             <h3 className="text-xs font-mono font-bold uppercase text-[#0284C7] tracking-wider mb-2">
-              Project Overview
+              Case Study Executive Briefing
             </h3>
             <p className="text-sm sm:text-base text-[#334155] leading-relaxed font-normal">
-              {project.summary || project.shortDescription || project.description}
+              {caseStudy.summary}
             </p>
 
             {/* Action buttons (only rendered when configured) */}
-            <div className="mt-5 pt-4 border-t border-[#E2E8F0] flex flex-wrap items-center gap-3">
-              {project.projectUrl && (
-                <a
-                  href={project.projectUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#0EA5E9] hover:bg-[#0284C7] text-white text-xs font-bold transition-all shadow-sm"
-                >
-                  <ExternalLink className="w-3.5 h-3.5" />
-                  <span>Launch Live Demo</span>
-                </a>
-              )}
-              {project.githubUrl && (
-                <a
-                  href={project.githubUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#0B1B3A] hover:bg-[#183B75] border border-[#CBD5E1] text-white text-xs font-bold transition-all shadow-sm"
-                >
-                  <GithubIcon className="w-3.5 h-3.5 text-[#38BDF8]" />
-                  <span>Source Code</span>
-                </a>
-              )}
-              {project.caseStudyUrl && (
-                <a
-                  href={project.caseStudyUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#F1F5F9] hover:bg-[#E2E8F0] text-[#0B1B3A] border border-[#CBD5E1] text-xs font-bold transition-all"
-                >
-                  <BookOpen className="w-3.5 h-3.5 text-[#0284C7]" />
-                  <span>Read Full Case Study</span>
-                </a>
-              )}
-            </div>
+            {(caseStudy.liveUrl || caseStudy.githubUrl) && (
+              <div className="mt-5 pt-4 border-t border-[#E2E8F0] flex flex-wrap items-center gap-3">
+                {caseStudy.liveUrl && (
+                  <a
+                    href={caseStudy.liveUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#0EA5E9] hover:bg-[#0284C7] text-white text-xs font-bold transition-all shadow-sm"
+                  >
+                    <ExternalLink className="w-3.5 h-3.5" />
+                    <span>View Reference System</span>
+                  </a>
+                )}
+                {caseStudy.githubUrl && (
+                  <a
+                    href={caseStudy.githubUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#0B1B3A] hover:bg-[#183B75] border border-[#CBD5E1] text-white text-xs font-bold transition-all shadow-sm"
+                  >
+                    <GithubIcon className="w-3.5 h-3.5 text-[#38BDF8]" />
+                    <span>Architecture Repo</span>
+                  </a>
+                )}
+              </div>
+            )}
           </div>
 
-          {/* Detailed Project Description (if distinct from summary) */}
-          {project.description && 
-           project.description !== project.summary && 
-           project.description !== project.shortDescription && (
+          {/* Deep Problem & Technical Solution Breakdown Cards */}
+          <div className="space-y-6 mb-10">
+            {caseStudy.problem && (
+              <div className="p-6 sm:p-7 rounded-2xl bg-white border border-rose-100 shadow-sm space-y-2">
+                <span className="text-xs font-extrabold uppercase tracking-wider text-rose-600 bg-rose-50 px-2.5 py-0.5 rounded border border-rose-200 inline-block">
+                  Business Challenge & Problem Statement
+                </span>
+                <p className="text-sm text-[#334155] leading-relaxed pt-1 whitespace-pre-line">
+                  {caseStudy.problem}
+                </p>
+              </div>
+            )}
+
+            {caseStudy.solution && (
+              <div className="p-6 sm:p-7 rounded-2xl bg-white border border-emerald-100 shadow-sm space-y-2">
+                <span className="text-xs font-extrabold uppercase tracking-wider text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded border border-emerald-200 inline-block">
+                  Technical Solution & Implementation
+                </span>
+                <p className="text-sm text-[#334155] leading-relaxed pt-1 whitespace-pre-line">
+                  {caseStudy.solution}
+                </p>
+              </div>
+            )}
+          </div>
+
+          {/* Key Architectural Features */}
+          {featuresList.length > 0 && (
             <div className="p-6 sm:p-8 rounded-2xl bg-white border border-[#E2E8F0] shadow-sm mb-10">
-              <h3 className="text-lg font-bold text-[#0B1B3A] font-display mb-3">
-                About The Project
+              <h3 className="text-lg font-bold text-[#0B1B3A] font-display mb-4">
+                Key Architectural Features
               </h3>
-              <p className="text-sm text-[#334155] leading-relaxed whitespace-pre-line font-normal">
-                {project.description}
-              </p>
+              <div className="space-y-3">
+                {featuresList.map((feat, i) => (
+                  <div key={i} className="flex items-start gap-3">
+                    <div className="w-5 h-5 rounded-full bg-[#E0F2FE] text-[#0284C7] flex items-center justify-center shrink-0 mt-0.5">
+                      <Check className="w-3.5 h-3.5 stroke-[3]" />
+                    </div>
+                    <span className="text-xs sm:text-sm text-[#334155] font-medium leading-relaxed">
+                      {feat}
+                    </span>
+                  </div>
+                ))}
+              </div>
             </div>
           )}
 
-          {/* Technology Stack Tags */}
-          {project.technologies && project.technologies.length > 0 && (
+          {/* Technology & Tooling Stack */}
+          {techList.length > 0 && (
             <div className="p-6 rounded-2xl bg-white border border-[#E2E8F0] shadow-sm mb-10">
               <h3 className="text-xs font-extrabold text-[#0B1B3A] uppercase tracking-wider mb-3">
-                Technologies & Tools Used
+                Technologies & Architecture Stack
               </h3>
               <div className="flex flex-wrap gap-2">
-                {(Array.isArray(project.technologies) ? project.technologies : project.technologies.split(',')).map((tech, i) => (
+                {techList.map((tech, i) => (
                   <span
                     key={i}
                     className="px-3 py-1.5 rounded-lg bg-[#F8FAFC] text-[#0B1B3A] text-xs font-mono font-bold border border-[#CBD5E1]"
                   >
-                    {tech.trim()}
+                    {tech}
                   </span>
                 ))}
               </div>
@@ -253,11 +282,11 @@ export default function ProjectDetailPage() {
             <div>
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#E0F2FE] border border-[#BAE6FD] text-[#0369A1] text-xs font-bold mb-2 shadow-sm">
                 <Sparkles className="w-3.5 h-3.5 text-[#0284C7]" />
-                <span>Partner With Yovexa</span>
+                <span>Custom Architecture Design</span>
               </div>
-              <h3 className="text-xl font-bold font-display text-[#0B1B3A]">Need a similar architecture built?</h3>
+              <h3 className="text-xl font-bold font-display text-[#0B1B3A]">Facing a similar technical challenge?</h3>
               <p className="text-xs sm:text-sm text-[#475569] mt-1">
-                Let's discuss how our engineering team can build your solution.
+                Our architects can design and build high-performance systems for your organization.
               </p>
             </div>
 
@@ -265,31 +294,31 @@ export default function ProjectDetailPage() {
               href="/#contact"
               className="shrink-0 px-6 py-3 rounded-xl font-bold text-xs sm:text-sm text-white bg-[#0EA5E9] hover:bg-[#0284C7] transition-all shadow-sm transform hover:-translate-y-0.5 active:translate-y-0"
             >
-              Let's Talk
+              Schedule Consultation
             </a>
           </div>
 
-          {/* Related Projects */}
-          {relatedProjects.length > 0 && (
+          {/* Related Case Studies */}
+          {relatedStudies.length > 0 && (
             <div className="mt-16 pt-8 border-t border-[#E2E8F0]">
               <h3 className="text-xl font-bold text-[#0B1B3A] font-display mb-6">
-                Explore More Projects
+                Explore More Case Studies
               </h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                {relatedProjects.map((p) => (
+                {relatedStudies.map((cs) => (
                   <Link
-                    key={p.id}
-                    to={`/projects/${p.slug || p.id}`}
+                    key={cs.id}
+                    to={`/case-studies/${cs.slug || cs.id}`}
                     className="p-5 rounded-2xl bg-white border border-[#E2E8F0] hover:border-[#0EA5E9] shadow-sm transition-all group"
                   >
                     <span className="text-[10px] font-bold uppercase text-[#0284C7] tracking-wider">
-                      {p.category}
+                      {cs.category}
                     </span>
                     <h4 className="text-base font-bold text-[#0B1B3A] group-hover:text-[#0284C7] transition-colors mt-1 font-display">
-                      {p.title || p.projectName}
+                      {cs.title}
                     </h4>
                     <p className="text-xs text-[#64748B] line-clamp-2 mt-1">
-                      {p.summary || p.shortDescription}
+                      {cs.summary || cs.problem}
                     </p>
                   </Link>
                 ))}

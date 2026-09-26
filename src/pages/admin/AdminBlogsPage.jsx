@@ -8,10 +8,11 @@ import { useToast } from '../../context/ToastContext';
 
 export default function AdminBlogsPage() {
   const [blogs, setBlogs] = useState([]);
+  const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('ALL');
-  const [selectedCategory, setSelectedCategory] = useState('ALL');
+  const [selectedCategory, setSelectedCategory] = useState('all');
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [isDeleting, setIsDeleting] = useState(false);
 
@@ -21,8 +22,14 @@ export default function AdminBlogsPage() {
   const loadBlogs = async () => {
     try {
       setLoading(true);
-      const data = await blogService.getAdminBlogs();
+      const [data, catData] = await Promise.all([
+        blogService.getAdminBlogs(),
+        blogService.getCategories(),
+      ]);
       setBlogs(data);
+      if (Array.isArray(catData)) {
+        setCategories(catData);
+      }
     } catch (err) {
       console.error('Failed to load admin blogs:', err);
       showToast('Failed to load blogs from database', 'error');
@@ -51,9 +58,6 @@ export default function AdminBlogsPage() {
     }
   };
 
-  // Derive categories
-  const categories = ['ALL', ...new Set(blogs.map(b => b.category).filter(Boolean))];
-
   // Filtered blogs
   const filteredBlogs = blogs.filter(b => {
     const matchesSearch = 
@@ -61,7 +65,9 @@ export default function AdminBlogsPage() {
       (b.author && b.author.toLowerCase().includes(searchTerm.toLowerCase())) ||
       (b.category && b.category.toLowerCase().includes(searchTerm.toLowerCase()));
     const matchesStatus = statusFilter === 'ALL' || b.status === statusFilter;
-    const matchesCategory = selectedCategory === 'ALL' || b.category === selectedCategory;
+    const normFilter = selectedCategory.trim().toUpperCase().replace(/[\s-]+/g, '_');
+    const bCatNorm = b.category ? b.category.trim().toUpperCase().replace(/[\s-]+/g, '_') : '';
+    const matchesCategory = selectedCategory.toLowerCase() === 'all' || bCatNorm === normFilter;
     return matchesSearch && matchesStatus && matchesCategory;
   });
 
@@ -172,20 +178,21 @@ export default function AdminBlogsPage() {
               onChange={(e) => setSelectedCategory(e.target.value)}
               className="py-2 px-3 text-sm bg-[#F8FAFC] border border-[#CBD5E1] rounded-xl text-[#0B1B3A] font-semibold focus:outline-none focus:ring-2 focus:ring-[#0EA5E9]"
             >
-              {categories.map(cat => (
-                <option key={cat} value={cat}>
-                  {cat === 'ALL' ? 'All Categories' : cat}
+              <option value="all">All Categories</option>
+              {categories.filter(c => c.id !== 'all').map(cat => (
+                <option key={cat.id} value={cat.id}>
+                  {cat.label}
                 </option>
               ))}
             </select>
           </div>
 
-          {(searchTerm || statusFilter !== 'ALL' || selectedCategory !== 'ALL') && (
+          {(searchTerm || statusFilter !== 'ALL' || selectedCategory !== 'all') && (
             <button
               onClick={() => {
                 setSearchTerm('');
                 setStatusFilter('ALL');
-                setSelectedCategory('ALL');
+                setSelectedCategory('all');
               }}
               className="text-xs font-bold text-[#0EA5E9] hover:underline px-2 py-1"
             >

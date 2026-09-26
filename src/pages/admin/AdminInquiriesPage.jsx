@@ -255,7 +255,7 @@ export default function AdminInquiriesPage() {
                     <td className="py-4 px-4 hidden md:table-cell">
                       <div className="max-w-xs">
                         <span className="inline-block px-2.5 py-0.5 rounded-md text-xs font-semibold bg-[#E0F2FE] text-[#0369A1] border border-[#BAE6FD]">
-                          {inq.serviceRequired || inq.service || 'Web Development'}
+                          {inq.serviceRequired || inq.service || 'General / Not Specified'}
                         </span>
                         <div className="text-xs text-[#64748B] line-clamp-1 mt-1 font-normal">
                           {inq.projectBudget && `Budget: ${inq.projectBudget} • `}

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Send, CheckCircle2, AlertCircle, Mail, MapPin, Clock, Sparkles, MessageSquare } from 'lucide-react';
 import { contentService } from '../services/contentService';
 import { inquiryService } from '../services/inquiryService';
+import { servicesService } from '../services/servicesService';
 
 export default function Contact({ preselectedService, preselectedProject }) {
   const [contactInfo, setContactInfo] = useState({
@@ -19,7 +20,7 @@ export default function Contact({ preselectedService, preselectedProject }) {
     email: '',
     phone: '',
     company: '',
-    serviceRequired: 'Web Development',
+    serviceRequired: preselectedService || '',
     projectBudget: 'Not Sure Yet',
     message: '',
   });
@@ -58,15 +59,37 @@ export default function Contact({ preselectedService, preselectedProject }) {
     }
   }, [preselectedProject]);
 
-  const serviceOptions = [
-    "Web Development",
-    "Mobile App Development",
-    "Custom Software Development",
-    "UI/UX Design",
-    "API & Backend Development",
-    "Business Automation",
-    "Other / Custom Requirement"
-  ];
+  const [serviceOptions, setServiceOptions] = useState([]);
+
+  useEffect(() => {
+    let isMounted = true;
+    servicesService.getServices({ activeOnly: true })
+      .then(services => {
+        if (isMounted && Array.isArray(services) && services.length > 0) {
+          const titles = services.map(s => s.title);
+          setServiceOptions([...titles, "Other / Custom Requirement"]);
+          setFormData(prev => {
+            if (!prev.serviceRequired) {
+              return { ...prev, serviceRequired: preselectedService || titles[0] };
+            }
+            return prev;
+          });
+        } else if (isMounted) {
+          setServiceOptions(["Other / Custom Requirement"]);
+          setFormData(prev => ({
+            ...prev,
+            serviceRequired: prev.serviceRequired || "Other / Custom Requirement"
+          }));
+        }
+      })
+      .catch(err => {
+        console.error('Failed to load services in contact form:', err);
+        if (isMounted) {
+          setServiceOptions(["Other / Custom Requirement"]);
+        }
+      });
+    return () => { isMounted = false; };
+  }, [preselectedService]);
 
   const budgetOptions = [
     "Under ₹25,000",
@@ -118,7 +141,7 @@ export default function Contact({ preselectedService, preselectedProject }) {
         email: '',
         phone: '',
         company: '',
-        serviceRequired: 'Web Development',
+        serviceRequired: serviceOptions[0] || 'Other / Custom Requirement',
         projectBudget: 'Not Sure Yet',
         message: '',
       });
@@ -131,25 +154,29 @@ export default function Contact({ preselectedService, preselectedProject }) {
   };
 
   return (
-    <section id="contact" className="py-24 bg-[#081A33] text-white relative tech-grid-dark overflow-hidden">
+    <section id="contact" className="py-28 sm:py-32 bg-[#F8FAFC] text-[#0B1B3A] relative tech-grid-bg overflow-hidden border-t border-[#E2E8F0] scroll-mt-20">
       {/* Background Ambience */}
-      <div className="absolute top-1/3 left-1/4 w-[500px] h-[500px] bg-[#0EA5E9]/10 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute bottom-10 right-10 w-[400px] h-[400px] bg-blue-600/10 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute top-1/3 left-1/4 w-[500px] h-[500px] bg-[#0EA5E9]/5 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute bottom-10 right-10 w-[400px] h-[400px] bg-sky-400/5 rounded-full blur-3xl pointer-events-none" />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
 
         {/* Section Header */}
         <div className="text-center max-w-3xl mx-auto mb-16">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#0EA5E9]/15 border border-[#0EA5E9]/35 text-[#38BDF8] text-xs font-bold uppercase tracking-wider mb-3">
-            <Sparkles className="w-3.5 h-3.5 text-[#38BDF8]" />
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#E0F2FE] border border-[#BAE6FD] text-[#0369A1] text-xs font-bold uppercase tracking-wider mb-3 shadow-sm">
+            <Sparkles className="w-3.5 h-3.5 text-[#0284C7]" />
             <span>Start a Conversation</span>
           </div>
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-white tracking-tight font-display">
-            {contactInfo.heading || "Have an Idea? Let's Build It."}
-          </h2>
-          <p className="mt-4 text-base sm:text-lg text-[#E2E8F0] font-normal leading-relaxed">
-            {contactInfo.description || "Tell us what you're building, what problem you're solving, or what you want to improve. We'll help turn the idea into a practical digital solution."}
-          </p>
+          {contactInfo.heading && (
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-[#0B1B3A] tracking-tight font-display">
+              {contactInfo.heading}
+            </h2>
+          )}
+          {contactInfo.description && (
+            <p className="mt-4 text-base sm:text-lg text-[#334155] font-normal leading-relaxed">
+              {contactInfo.description}
+            </p>
+          )}
         </div>
 
         {/* 2-Column Contact Section */}
@@ -157,78 +184,80 @@ export default function Contact({ preselectedService, preselectedProject }) {
 
           {/* Left Column: Direct Communication & Expectation Cards */}
           <div className="lg:col-span-5 space-y-6">
-            <div className="p-7 rounded-2xl bg-[#0B1B3A] border border-white/15">
-              <h3 className="text-xl font-bold text-white font-display mb-5">
+            <div className="p-7 rounded-2xl bg-white border border-[#E2E8F0] shadow-card">
+              <h3 className="text-xl font-bold text-[#0B1B3A] font-display mb-5">
                 What Happens Next?
               </h3>
 
-              <div className="space-y-5 text-sm text-[#E2E8F0]">
+              <div className="space-y-5 text-sm">
                 <div className="flex items-start gap-3.5">
-                  <div className="w-7 h-7 rounded-full bg-[#0EA5E9] text-white flex items-center justify-center shrink-0 mt-0.5 font-bold text-xs shadow-sm">
+                  <div className="w-7 h-7 rounded-full bg-[#0284C7] text-white flex items-center justify-center shrink-0 mt-0.5 font-bold text-xs shadow-sm">
                     1
                   </div>
                   <div>
-                    <strong className="text-white text-sm">Review & Feasibility Check:</strong>
-                    <p className="text-[#CBD5E1] mt-0.5 text-xs leading-relaxed font-normal">We analyze your requirements and prepare technical architecture recommendations.</p>
+                    <strong className="text-[#0B1B3A] text-sm">Review & Feasibility Check:</strong>
+                    <p className="text-[#475569] mt-0.5 text-xs leading-relaxed font-normal">We analyze your requirements and prepare technical architecture recommendations.</p>
                   </div>
                 </div>
 
                 <div className="flex items-start gap-3.5">
-                  <div className="w-7 h-7 rounded-full bg-[#0EA5E9] text-white flex items-center justify-center shrink-0 mt-0.5 font-bold text-xs shadow-sm">
+                  <div className="w-7 h-7 rounded-full bg-[#0284C7] text-white flex items-center justify-center shrink-0 mt-0.5 font-bold text-xs shadow-sm">
                     2
                   </div>
                   <div>
-                    <strong className="text-white text-sm">Direct Technical Discussion:</strong>
-                    <p className="text-[#CBD5E1] mt-0.5 text-xs leading-relaxed font-normal">Speak with an engineer directly to clarify technical milestones and dependencies.</p>
+                    <strong className="text-[#0B1B3A] text-sm">Direct Technical Discussion:</strong>
+                    <p className="text-[#475569] mt-0.5 text-xs leading-relaxed font-normal">Speak with an engineer directly to clarify technical milestones and dependencies.</p>
                   </div>
                 </div>
 
                 <div className="flex items-start gap-3.5">
-                  <div className="w-7 h-7 rounded-full bg-[#0EA5E9] text-white flex items-center justify-center shrink-0 mt-0.5 font-bold text-xs shadow-sm">
+                  <div className="w-7 h-7 rounded-full bg-[#0284C7] text-white flex items-center justify-center shrink-0 mt-0.5 font-bold text-xs shadow-sm">
                     3
                   </div>
                   <div>
-                    <strong className="text-white text-sm">Scope & Milestone Proposal:</strong>
-                    <p className="text-[#CBD5E1] mt-0.5 text-xs leading-relaxed font-normal">Transparent deliverable schedule with realistic estimates and milestone payments.</p>
+                    <strong className="text-[#0B1B3A] text-sm">Scope & Milestone Proposal:</strong>
+                    <p className="text-[#475569] mt-0.5 text-xs leading-relaxed font-normal">Transparent deliverable schedule with realistic estimates and milestone payments.</p>
                   </div>
                 </div>
               </div>
             </div>
 
             {/* Direct Contact Info Tile */}
-            <div className="p-6 rounded-2xl bg-[#0B1B3A] border border-white/15 space-y-4">
+            <div className="p-6 rounded-2xl bg-white border border-[#E2E8F0] shadow-card space-y-4">
               {contactInfo.email && (
-                <div className="flex items-center gap-3.5 text-sm text-[#E2E8F0]">
-                  <div className="w-10 h-10 rounded-lg bg-[#081A33] flex items-center justify-center text-[#38BDF8] shrink-0 border border-white/10">
+                <div className="flex items-center gap-3.5 text-sm">
+                  <div className="w-10 h-10 rounded-xl bg-[#E0F2FE] flex items-center justify-center text-[#0284C7] shrink-0 border border-[#BAE6FD]">
                     <Mail className="w-5 h-5" />
                   </div>
                   <div>
-                    <div className="text-[11px] text-[#BAE6FD] uppercase font-bold tracking-wider">Official Inquiries</div>
-                    <a href={`mailto:${contactInfo.email}`} className="text-white font-semibold hover:text-[#38BDF8] transition-colors">
+                    <div className="text-[11px] text-[#0284C7] uppercase font-bold tracking-wider">Official Inquiries</div>
+                    <a href={`mailto:${contactInfo.email}`} className="text-[#0B1B3A] font-semibold hover:text-[#0284C7] transition-colors">
                       {contactInfo.email}
                     </a>
                   </div>
                 </div>
               )}
 
-              <div className="flex items-center gap-3.5 text-sm text-[#E2E8F0]">
-                <div className="w-10 h-10 rounded-lg bg-[#081A33] flex items-center justify-center text-[#38BDF8] shrink-0 border border-white/10">
-                  <Clock className="w-5 h-5" />
+              {contactInfo.turnaroundTime && (
+                <div className="flex items-center gap-3.5 text-sm">
+                  <div className="w-10 h-10 rounded-xl bg-[#E0F2FE] flex items-center justify-center text-[#0284C7] shrink-0 border border-[#BAE6FD]">
+                    <Clock className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <div className="text-[11px] text-[#0284C7] uppercase font-bold tracking-wider">Turnaround Time</div>
+                    <div className="text-[#0B1B3A] font-semibold">{contactInfo.turnaroundTime}</div>
+                  </div>
                 </div>
-                <div>
-                  <div className="text-[11px] text-[#BAE6FD] uppercase font-bold tracking-wider">Turnaround Time</div>
-                  <div className="text-white font-semibold">{contactInfo.turnaroundTime || "Within 24 Hours"} (Mon - Sat)</div>
-                </div>
-              </div>
+              )}
 
               {contactInfo.location && (
-                <div className="flex items-center gap-3.5 text-sm text-[#E2E8F0]">
-                  <div className="w-10 h-10 rounded-lg bg-[#081A33] flex items-center justify-center text-[#38BDF8] shrink-0 border border-white/10">
+                <div className="flex items-center gap-3.5 text-sm">
+                  <div className="w-10 h-10 rounded-xl bg-[#E0F2FE] flex items-center justify-center text-[#0284C7] shrink-0 border border-[#BAE6FD]">
                     <MapPin className="w-5 h-5" />
                   </div>
                   <div>
-                    <div className="text-[11px] text-[#BAE6FD] uppercase font-bold tracking-wider">Location</div>
-                    <div className="text-white font-semibold">{contactInfo.location}</div>
+                    <div className="text-[11px] text-[#0284C7] uppercase font-bold tracking-wider">Location</div>
+                    <div className="text-[#0B1B3A] font-semibold">{contactInfo.location}</div>
                   </div>
                 </div>
               )}
@@ -238,7 +267,7 @@ export default function Contact({ preselectedService, preselectedProject }) {
 
           {/* Right Column: High Contrast Accessible White Form Card */}
           <div className="lg:col-span-7">
-            <div className="p-7 sm:p-9 rounded-2xl bg-white text-[#0B1B3A] border border-[#E2E8F0] shadow-2xl">
+            <div className="p-7 sm:p-9 rounded-2xl bg-white text-[#0B1B3A] border border-[#E2E8F0] shadow-card">
 
               {isSubmitted ? (
                 <div className="py-12 px-4 text-center space-y-4 animate-in fade-in">

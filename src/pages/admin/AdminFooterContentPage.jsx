@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Save, LayoutTemplate, Loader2 } from 'lucide-react';
 import { siteSettingsService } from '../../services/siteSettingsService';
 import { api } from '../../services/api';
@@ -9,7 +9,6 @@ const SOCIAL_PLATFORMS = [
   { key: 'github',    label: 'GitHub',     placeholder: 'https://github.com/yourorg' },
   { key: 'instagram', label: 'Instagram',  placeholder: 'https://instagram.com/yourhandle' },
   { key: 'facebook',  label: 'Facebook',   placeholder: 'https://facebook.com/yourpage' },
-  { key: 'youtube',   label: 'YouTube',    placeholder: 'https://youtube.com/@yourchannel' },
 ];
 
 const EMPTY_FORM = {
@@ -25,7 +24,6 @@ const EMPTY_FORM = {
   github: '',
   instagram: '',
   facebook: '',
-  youtube: '',
 };
 
 export default function AdminFooterContentPage() {
@@ -51,7 +49,6 @@ export default function AdminFooterContentPage() {
             github:            data.github            || '',
             instagram:         data.instagram         || '',
             facebook:          data.facebook          || '',
-            youtube:           data.youtube           || '',
           });
         }
       })

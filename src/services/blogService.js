@@ -30,6 +30,21 @@ function formatPublishedAt(status, publishedAt) {
 }
 
 export const blogService = {
+  // Public: Get dynamic blog categories
+  async getCategories() {
+    try {
+      const res = await api.get('/blogs/categories');
+      const data = extractData(res);
+      if (Array.isArray(data)) {
+        return data;
+      }
+      return [];
+    } catch (err) {
+      console.warn('Failed to fetch blog categories from backend:', err);
+      return [];
+    }
+  },
+
   // Public: Get all published blogs with optional search/category filter
   async getPublicBlogs({ search = '', category = 'all' } = {}) {
     try {

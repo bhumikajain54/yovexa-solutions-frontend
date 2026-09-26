@@ -30,7 +30,7 @@ export default function Services({ onSelectService }) {
   };
 
   return (
-    <section id="services" className="py-24 bg-white text-[#0B1B3A] relative">
+    <section id="services" className="py-28 sm:py-32 bg-[#F8FAFC] text-[#0B1B3A] relative border-b border-[#E2E8F0] scroll-mt-20">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Section Header */}

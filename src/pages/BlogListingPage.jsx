@@ -7,12 +7,28 @@ import { blogService } from '../services/blogService';
 
 export default function BlogListingPage() {
   const [blogs, setBlogs] = useState([]);
+  const [categories, setCategories] = useState([
+    { id: 'all', label: 'All Articles' },
+  ]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [activeCategory, setActiveCategory] = useState('all');
 
   useEffect(() => {
     window.scrollTo(0, 0);
+  }, []);
+
+  // Dynamically load categories from backend blog categories API
+  useEffect(() => {
+    let isMounted = true;
+    blogService.getCategories()
+      .then(catData => {
+        if (isMounted && Array.isArray(catData) && catData.length > 0) {
+          setCategories(catData);
+        }
+      })
+      .catch(err => console.warn('Failed to load blog categories:', err));
+    return () => { isMounted = false; };
   }, []);
 
   useEffect(() => {
@@ -39,14 +55,6 @@ export default function BlogListingPage() {
     };
   }, [search, activeCategory]);
 
-  const categories = [
-    { id: 'all', label: 'All Articles' },
-    { id: 'Web Development', label: 'Web Development' },
-    { id: 'Mobile App Development', label: 'Mobile Apps' },
-    { id: 'Business Automation', label: 'Automation' },
-    { id: 'UI/UX Design', label: 'UI/UX Design' },
-  ];
-
   return (
     <div className="min-h-screen flex flex-col bg-[#F8FAFC] text-[#0B1B3A] font-sans">
       {/* Public Sticky Navbar */}
@@ -54,21 +62,21 @@ export default function BlogListingPage() {
 
       <main className="flex-1 pt-28 pb-24">
         {/* Blog Hero Header */}
-        <section className="bg-[#081A33] text-white py-16 sm:py-20 relative tech-grid-dark overflow-hidden mb-12">
+        <section className="bg-white border-b border-[#E2E8F0] text-[#0B1B3A] py-16 sm:py-20 relative tech-grid-bg overflow-hidden mb-12 shadow-sm">
           {/* Subtle Glows */}
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-[#0EA5E9]/10 rounded-full blur-3xl pointer-events-none" />
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-[#0EA5E9]/5 rounded-full blur-3xl pointer-events-none" />
 
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#0EA5E9]/15 border border-[#0EA5E9]/35 text-[#38BDF8] text-xs font-bold uppercase tracking-wider mb-4">
-              <Sparkles className="w-3.5 h-3.5 text-[#38BDF8]" />
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#E0F2FE] border border-[#BAE6FD] text-[#0369A1] text-xs font-bold uppercase tracking-wider mb-4 shadow-sm">
+              <Sparkles className="w-3.5 h-3.5 text-[#0284C7]" />
               <span>Yovexa Insights & Ideas</span>
             </div>
 
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-white tracking-tight font-display">
-              Insights & <span className="text-[#38BDF8]">Ideas</span>
+            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-[#0B1B3A] tracking-tight font-display">
+              Insights & <span className="text-[#0284C7]">Ideas</span>
             </h1>
 
-            <p className="mt-4 text-base sm:text-lg text-[#E2E8F0] max-w-2xl mx-auto font-normal">
+            <p className="mt-4 text-base sm:text-lg text-[#334155] max-w-2xl mx-auto font-normal">
               Explore practical insights, technology trends, and engineering ideas from Yovexa Solutions.
             </p>
 
@@ -80,7 +88,7 @@ export default function BlogListingPage() {
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 placeholder="Search articles by topic, title, or tag..."
-                className="w-full pl-12 pr-4 py-3.5 rounded-2xl bg-white text-[#0F172A] placeholder-[#64748B] text-sm font-medium focus:outline-none focus:ring-2 focus:ring-[#0EA5E9] shadow-lg border border-white/20"
+                className="w-full pl-12 pr-4 py-3.5 rounded-2xl bg-[#F8FAFC] text-[#0F172A] placeholder-[#64748B] text-sm font-medium focus:outline-none focus:ring-2 focus:ring-[#0EA5E9] focus:bg-white shadow-sm border border-[#CBD5E1]"
               />
             </div>
           </div>

@@ -1,8 +1,8 @@
-﻿import { api, extractData } from './api';
+import { api, extractData } from './api';
 
 /**
  * Maps the flat social URL fields returned by the backend
- * (linkedin, github, instagram, facebook, youtube) into a
+ * (linkedin, github, instagram, facebook) into a
  * uniform socials array used by Footer and other UI components.
  *
  * Only social platforms that have a non-empty URL are included.
@@ -11,12 +11,13 @@ const SOCIAL_PLATFORM_MAP = [
   { key: 'linkedin', name: 'LinkedIn' },
   { key: 'github', name: 'GitHub' },
   { key: 'instagram', name: 'Instagram' },
+  { key: 'facebook', name: 'Facebook' },
 ];
 
 function buildSocialsArray(data) {
   if (!data) return [];
   return SOCIAL_PLATFORM_MAP
-    .filter(({ key }) => data[key] && data[key].trim() !== '')
+    .filter(({ key }) => data[key] && typeof data[key] === 'string' && data[key].trim() !== '')
     .map(({ key, name }) => ({ name, href: data[key].trim() }));
 }
 
